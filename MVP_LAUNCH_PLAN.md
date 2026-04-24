@@ -56,6 +56,7 @@ export SUPABASE_SERVICE_ROLE_KEY=""
 
 export GCP_PROJECT_ID=""
 export CLOUD_RUN_REGION="asia-south1"
+export ARTIFACT_REPOSITORY="daanyam-rishte"
 export CLOUD_RUN_SERVICE="rishte-api"
 export CLOUD_RUN_URL=""
 
@@ -145,19 +146,39 @@ gcloud init
 gcloud config set project "$GCP_PROJECT_ID"
 ```
 
-Deploy from the backend directory:
+Create the Artifact Registry repository before the first build:
 
 ```bash
-cd /Users/sanjeet/Desktop/daanyam-rishte/backend
+gcloud services enable artifactregistry.googleapis.com cloudbuild.googleapis.com run.googleapis.com
 
-gcloud run deploy "$CLOUD_RUN_SERVICE" \
-  --source . \
-  --platform managed \
+gcloud artifacts repositories create "$ARTIFACT_REPOSITORY" \
+  --repository-format=docker \
+  --location="$CLOUD_RUN_REGION" \
+  --description="Docker images for daanyam-rishte"
+```
+
+If the repository already exists, the create command can be skipped.
+
+Confirm the Cloud Build service account can push images and deploy Cloud Run:
+
+- It needs Artifact Registry write access for the repository.
+- It needs permission to deploy/update the Cloud Run service.
+- It may need service account user permission for the runtime service account used by Cloud Run.
+
+Submit the build from the repository root so Cloud Build uses `cloudbuild.yaml` and pushes to Artifact Registry:
+
+```bash
+cd /Users/sanjeet/Desktop/daanyam-rishte
+
+gcloud builds submit --config cloudbuild.yaml .
+```
+
+Then set production environment variables on the Cloud Run service:
+
+```bash
+gcloud run services update "$CLOUD_RUN_SERVICE" \
   --region "$CLOUD_RUN_REGION" \
-  --allow-unauthenticated \
-  --memory 512Mi \
-  --timeout 300 \
-  --set-env-vars "NODE_ENV=production,PORT=3000,DATABASE_URL=$SUPABASE_DATABASE_URL,JWT_SECRET=$JWT_SECRET,SUPABASE_URL=$SUPABASE_URL,SUPABASE_KEY=$SUPABASE_SERVICE_ROLE_KEY,CORS_ORIGIN=$FRONTEND_DOMAIN,R2_ACCOUNT_ID=$R2_ACCOUNT_ID,R2_ACCESS_KEY_ID=$R2_ACCESS_KEY_ID,R2_SECRET_ACCESS_KEY=$R2_SECRET_ACCESS_KEY,R2_BUCKET_NAME=$R2_BUCKET_NAME"
+  --update-env-vars "NODE_ENV=production,PORT=3000,DATABASE_URL=$SUPABASE_DATABASE_URL,JWT_SECRET=$JWT_SECRET,SUPABASE_URL=$SUPABASE_URL,SUPABASE_KEY=$SUPABASE_SERVICE_ROLE_KEY,CORS_ORIGIN=$FRONTEND_DOMAIN,R2_ACCOUNT_ID=$R2_ACCOUNT_ID,R2_ACCESS_KEY_ID=$R2_ACCESS_KEY_ID,R2_SECRET_ACCESS_KEY=$R2_SECRET_ACCESS_KEY,R2_BUCKET_NAME=$R2_BUCKET_NAME"
 ```
 
 Save the generated service URL:
@@ -179,6 +200,14 @@ Expected response:
 ```
 
 Done means the backend health endpoint responds from Cloud Run.
+
+If Cloud Build fails while pushing to `gcr.io/...`, the Docker image build has already succeeded and the issue is registry configuration. Use the Artifact Registry image path from `cloudbuild.yaml`:
+
+```text
+asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:<tag>
+```
+
+Then confirm the Cloud Build trigger uses `cloudbuild.yaml` rather than an old Dockerfile trigger configured to push to `gcr.io/$PROJECT_ID/...`.
 
 ## Step 5: Deploy Frontend to Vercel
 
