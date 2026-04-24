@@ -5,18 +5,6 @@ substitutions:
   _SERVICE: rishte-api
 
 steps:
-  - id: ensure-artifact-registry-repository
-    name: gcr.io/cloud-builders/gcloud
-    entrypoint: bash
-    args:
-      - -c
-      - |
-        gcloud artifacts repositories describe "${_REPOSITORY}" --location="${_REGION}" >/dev/null 2>&1 || \
-          gcloud artifacts repositories create "${_REPOSITORY}" \
-            --repository-format=docker \
-            --location="${_REGION}" \
-            --description="Docker images for daanyam-rishte"
-
   - id: build-backend-image
     name: gcr.io/cloud-builders/docker
     args:

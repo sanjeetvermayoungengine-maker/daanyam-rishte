@@ -146,7 +146,7 @@ gcloud init
 gcloud config set project "$GCP_PROJECT_ID"
 ```
 
-Create the Artifact Registry repository before the first build:
+Create the Artifact Registry repository before the first build. Do this once using a project owner/admin account, not the Cloud Build service account:
 
 ```bash
 gcloud services enable artifactregistry.googleapis.com cloudbuild.googleapis.com run.googleapis.com
@@ -159,11 +159,19 @@ gcloud artifacts repositories create "$ARTIFACT_REPOSITORY" \
 
 If the repository already exists, the create command can be skipped.
 
-Confirm the Cloud Build service account can push images and deploy Cloud Run:
+Confirm the Cloud Build service account can push images and deploy Cloud Run. The current trigger uses:
+
+```text
+592048110971-compute@developer.gserviceaccount.com
+```
+
+Required IAM for that service account:
 
 - It needs Artifact Registry write access for the repository.
 - It needs permission to deploy/update the Cloud Run service.
 - It may need service account user permission for the runtime service account used by Cloud Run.
+
+The Cloud Build service account does not need permission to create Artifact Registry repositories if the repository is created manually first.
 
 Submit the build from the repository root so Cloud Build uses `cloudbuild.yaml` and pushes to Artifact Registry:
 
