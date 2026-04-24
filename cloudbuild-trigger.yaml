@@ -1,0 +1,13 @@
+name: daanyam-rishte-backend
+description: Build backend image with cloudbuild.yaml and deploy to Cloud Run.
+github:
+  owner: sanjeetvermayoungengine-maker
+  name: daanyam-rishte
+  push:
+    branch: ^main$
+filename: cloudbuild.yaml
+includedFiles:
+  - cloudbuild.yaml
+  - backend/**
+  - package.json
+  - package-lock.json
