@@ -209,6 +209,14 @@ asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:<tag>
 
 Then confirm the Cloud Build trigger uses `cloudbuild.yaml` rather than an old Dockerfile trigger configured to push to `gcr.io/$PROJECT_ID/...`.
 
+In the Cloud Build trigger settings, the important fields are:
+
+- Configuration: `Cloud Build configuration file (yaml or json)`
+- Location: `Repository`
+- Cloud Build configuration file location: `cloudbuild.yaml`
+
+If the log still says `Successfully tagged gcr.io/daanyam-astroengine/daanyam-rishte:latest`, the trigger is still using Dockerfile mode and has not picked up this repository config.
+
 ## Step 5: Deploy Frontend to Vercel
 
 Set the temporary API URL to the Cloud Run URL first:
