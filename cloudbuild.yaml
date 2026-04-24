@@ -1,0 +1,45 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:$SHORT_SHA'
+      - '-t'
+      - 'asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:latest'
+      - '-f'
+      - 'backend/Dockerfile'
+      - './backend'
+
+  # Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - run
+      - '--filename=.'
+      - '--image=asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:$SHORT_SHA'
+      - '--location=asia-south1'
+      - '--output=/workspace/output'
+
+  # Alternative: Use gcloud to deploy to Cloud Run directly
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'daanyam-rishte'
+      - '--image=asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:$SHORT_SHA'
+      - '--region=asia-south1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=3000'
+
+images:
+  - 'asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:$SHORT_SHA'
+  - 'asia-south1-docker.pkg.dev/$PROJECT_ID/daanyam-rishte/api:latest'
+
+timeout: '1800s'
