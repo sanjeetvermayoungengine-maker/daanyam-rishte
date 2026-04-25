@@ -954,6 +954,20 @@ main {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.share-created {
+  background: #fbfcfd;
+  border: 1px solid rgba(23, 32, 51, 0.1);
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.share-created h3,
+.share-created p {
+  margin: 0;
+}
+
 .permission-list {
   display: grid;
   gap: 10px;
