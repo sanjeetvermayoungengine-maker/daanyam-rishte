@@ -39,7 +39,7 @@ export function Step6Review() {
     <section className="page-shell">
       <div className="review-layout">
         <aside className="review-sidebar">
-          <StepIndicator current={7} />
+          <StepIndicator current={6} />
           <div className="section-heading">
             <p className="eyebrow">Review</p>
             <h1>Review and submit</h1>

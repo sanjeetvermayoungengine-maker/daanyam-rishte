@@ -21,6 +21,7 @@ export function TemplateViewModern({
         showPhotos={showPhotos}
         showHoroscope={showHoroscope}
         showContact={showContact}
+        variant="modern"
       />
     </div>
   );

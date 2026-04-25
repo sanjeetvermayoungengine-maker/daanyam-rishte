@@ -90,7 +90,7 @@ export function Step5ChooseTemplate() {
             className="button button--primary"
             type="button"
             onClick={() => {
-              dispatch(setCurrentStep(7));
+              dispatch(setCurrentStep(6));
               navigate("/biodata/review");
             }}
           >

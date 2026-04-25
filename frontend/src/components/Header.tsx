@@ -26,7 +26,7 @@ export function Header() {
           R
         </span>
         <span>
-          <strong>Rishta</strong>
+          <strong>Rishte</strong>
           <small>{statusLabel}</small>
         </span>
       </NavLink>

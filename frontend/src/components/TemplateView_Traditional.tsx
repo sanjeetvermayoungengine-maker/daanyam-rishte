@@ -8,6 +8,7 @@ type TemplateViewProps = {
   showPhotos?: boolean;
   showHoroscope?: boolean;
   showContact?: boolean;
+  variant?: "traditional" | "modern" | "premium";
 };
 
 export function TemplateViewTraditional({
@@ -16,14 +17,26 @@ export function TemplateViewTraditional({
   publicMode = false,
   showPhotos = true,
   showHoroscope = true,
-  showContact = true
+  showContact = true,
+  variant = "traditional"
 }: TemplateViewProps) {
   const primaryPhoto = getPrimaryPhoto(bioData);
   const age = getAgeFromDob(bioData.personalDetails.dob);
   const siblings = bioData.family.siblings.filter((sibling) => sibling.name || sibling.occupation);
+  const articleClassName = ["biodata-sheet", compact ? "biodata-sheet--compact" : "", `biodata-sheet--${variant}`]
+    .filter(Boolean)
+    .join(" ");
+  const eyebrowLabel =
+    publicMode
+      ? "Shared biodata"
+      : variant === "modern"
+        ? "Modern template"
+        : variant === "premium"
+          ? "Premium template"
+          : "Traditional template";
 
   return (
-    <article className={compact ? "biodata-sheet biodata-sheet--compact" : "biodata-sheet"}>
+    <article className={articleClassName}>
       <header className="biodata-sheet__header">
         {showPhotos && primaryPhoto ? (
           <img className="profile-photo" src={primaryPhoto.url} alt={bioData.personalDetails.fullName} />
@@ -33,7 +46,7 @@ export function TemplateViewTraditional({
           </div>
         )}
         <div>
-          <p className="eyebrow">{publicMode ? "Shared biodata" : "Traditional template"}</p>
+          <p className="eyebrow">{eyebrowLabel}</p>
           <h2>{bioData.personalDetails.fullName || "Your Name"}</h2>
           <p>
             {[age ? `${age} years` : "", bioData.personalDetails.profession, bioData.family.location]

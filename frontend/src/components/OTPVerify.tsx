@@ -48,6 +48,7 @@ export function OTPVerify() {
           {digits.map((digit, index) => (
             <input
               key={index}
+              className={digit ? "otp-cell otp-cell--filled" : "otp-cell"}
               ref={(node) => {
                 inputsRef.current[index] = node;
               }}

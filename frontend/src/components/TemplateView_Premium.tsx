@@ -21,6 +21,7 @@ export function TemplateViewPremium({
         showPhotos={showPhotos}
         showHoroscope={showHoroscope}
         showContact={showContact}
+        variant="premium"
       />
     </div>
   );

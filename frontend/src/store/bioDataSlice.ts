@@ -225,7 +225,7 @@ const bioDataSlice = createSlice({
     },
     submitBioData(state, action: PayloadAction<string>) {
       state.submittedAt = action.payload;
-      state.currentStep = 7;
+      state.currentStep = 6;
       state.error = null;
     },
     setLoading(state, action: PayloadAction<boolean>) {
