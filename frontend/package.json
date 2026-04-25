@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build || node scripts/build-esbuild.mjs",
+    "build:vite": "vite build",
+    "build:esbuild": "node scripts/build-esbuild.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
