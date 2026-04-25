@@ -3,12 +3,26 @@ import { Link } from "react-router-dom";
 import { ShareModal } from "../components/ShareModal";
 import { TemplateViewModern } from "../components/TemplateView_Modern";
 import { TemplateViewPremium } from "../components/TemplateView_Premium";
+import { TemplateViewSplit } from "../components/TemplateView_Split";
 import { TemplateViewTraditional } from "../components/TemplateView_Traditional";
 import { useAppSelector } from "../store/hooks";
 
 export function BioDataPreview() {
   const bioData = useAppSelector((state) => state.bioData);
   const [isShareOpen, setIsShareOpen] = useState(false);
+
+  function renderTemplate() {
+    switch (bioData.template) {
+      case "modern":
+        return <TemplateViewModern bioData={bioData} />;
+      case "premium":
+        return <TemplateViewPremium bioData={bioData} />;
+      case "split":
+        return <TemplateViewSplit bioData={bioData} />;
+      default:
+        return <TemplateViewTraditional bioData={bioData} />;
+    }
+  }
 
   return (
     <section className="page-shell">
@@ -31,13 +45,7 @@ export function BioDataPreview() {
       </div>
 
       <div className="preview-frame">
-        {bioData.template === "modern" ? (
-          <TemplateViewModern bioData={bioData} />
-        ) : bioData.template === "premium" ? (
-          <TemplateViewPremium bioData={bioData} />
-        ) : (
-          <TemplateViewTraditional bioData={bioData} />
-        )}
+        {renderTemplate()}
       </div>
 
       <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} />

@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export type TemplateId = "traditional" | "modern" | "premium";
+export type TemplateId = "traditional" | "modern" | "premium" | "split";
 export type MarsDosha = "" | "yes" | "no" | "unknown";
 
 export interface PersonalDetails {
