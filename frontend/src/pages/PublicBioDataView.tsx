@@ -1,34 +1,55 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { TemplateViewModern } from "../components/TemplateView_Modern";
 import { TemplateViewPremium } from "../components/TemplateView_Premium";
+import { TemplateViewSplit } from "../components/TemplateView_Split";
 import { TemplateViewTraditional } from "../components/TemplateView_Traditional";
-import { markShareAccessed } from "../store/bioDataSlice";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchPublicShareByToken, type PublicShareError, type PublicShareResponse } from "../services/shareApi";
 import { formatDisplayDate } from "../utils/formHelpers";
 
 export function PublicBioDataView() {
   const { token } = useParams();
-  const dispatch = useAppDispatch();
-  const bioData = useAppSelector((state) => state.bioData);
-  const share = bioData.shares.find((item) => item.token === token);
-  const isExpired = Boolean(share && share.expiryDate < new Date().toISOString().slice(0, 10));
-  const isValid = Boolean(share && share.status === "active" && !isExpired);
+  const [result, setResult] = useState<PublicShareResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorCode, setErrorCode] = useState<PublicShareError["code"] | null>(null);
 
   useEffect(() => {
-    if (token && isValid) {
-      dispatch(markShareAccessed(token));
+    if (!token) {
+      setLoading(false);
+      setErrorCode("not_found");
+      return;
     }
-  }, [dispatch, isValid, token]);
 
-  if (!share || !isValid) {
+    setLoading(true);
+    setErrorCode(null);
+    void fetchPublicShareByToken(token)
+      .then((data) => {
+        setResult(data);
+      })
+      .catch((error: PublicShareError) => {
+        setErrorCode(error.code);
+      })
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  if (loading) {
+    return (
+      <section className="page-shell page-shell--narrow">
+        <div className="empty-state">
+          <p>Loading shared biodata...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!result || errorCode) {
     return (
       <section className="page-shell page-shell--narrow">
         <div className="empty-state">
           <p className="eyebrow">Shared biodata</p>
-          <h1>{share && isExpired ? "This link has expired" : "Share link unavailable"}</h1>
+          <h1>{errorCode === "expired" ? "This link has expired" : "Share link unavailable"}</h1>
           <p>
-            {share?.status === "revoked"
+            {errorCode === "revoked"
               ? "The sender has revoked this share link."
               : "Ask the sender for a fresh biodata link."}
           </p>
@@ -38,6 +59,28 @@ export function PublicBioDataView() {
         </div>
       </section>
     );
+  }
+
+  const { share, bioData } = result;
+
+  function renderTemplate() {
+    const props = {
+      bioData,
+      showPhotos: share.permissions.viewPhotos,
+      showHoroscope: share.permissions.viewHoroscope,
+      showContact: share.permissions.viewContact,
+    };
+
+    switch (bioData.template) {
+      case "modern":
+        return <TemplateViewModern {...props} />;
+      case "premium":
+        return <TemplateViewPremium {...props} />;
+      case "split":
+        return <TemplateViewSplit {...props} />;
+      default:
+        return <TemplateViewTraditional {...props} publicMode />;
+    }
   }
 
   return (
@@ -59,29 +102,7 @@ export function PublicBioDataView() {
 
       {share.permissions.viewBasic ? (
         <div className="preview-frame">
-          {bioData.template === "modern" ? (
-            <TemplateViewModern
-              bioData={bioData}
-              showPhotos={share.permissions.viewPhotos}
-              showHoroscope={share.permissions.viewHoroscope}
-              showContact={share.permissions.viewContact}
-            />
-          ) : bioData.template === "premium" ? (
-            <TemplateViewPremium
-              bioData={bioData}
-              showPhotos={share.permissions.viewPhotos}
-              showHoroscope={share.permissions.viewHoroscope}
-              showContact={share.permissions.viewContact}
-            />
-          ) : (
-            <TemplateViewTraditional
-              bioData={bioData}
-              publicMode
-              showPhotos={share.permissions.viewPhotos}
-              showHoroscope={share.permissions.viewHoroscope}
-              showContact={share.permissions.viewContact}
-            />
-          )}
+          {renderTemplate()}
         </div>
       ) : (
         <div className="empty-state">

@@ -1,12 +1,27 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { HeroSection } from "../components/HeroSection";
+import { listSharesApi, type ShareApiRecord } from "../services/shareApi";
 import { useAppSelector } from "../store/hooks";
 import { formatDisplayDate, getPublicShareUrl, hasStartedBioData } from "../utils/formHelpers";
 
 export function Home() {
+  const { user, isConfigured } = useAuth();
   const bioData = useAppSelector((state) => state.bioData);
+  const [shares, setShares] = useState<ShareApiRecord[]>([]);
   const hasDraft = hasStartedBioData(bioData);
-  const activeShares = bioData.shares.filter((share) => share.status === "active");
+  const activeShares = shares.filter((share) => share.status === "active");
+
+  useEffect(() => {
+    if (isConfigured && !user) {
+      setShares([]);
+      return;
+    }
+    void listSharesApi()
+      .then((loadedShares) => setShares(loadedShares))
+      .catch(() => setShares([]));
+  }, [isConfigured, user]);
 
   return (
     <section className="page-shell">
@@ -28,9 +43,11 @@ export function Home() {
 
         <article className="summary-card">
           <span className="summary-card__label">Active shares</span>
-          <strong>{activeShares.length}</strong>
+          <strong>{isConfigured && !user ? "-" : activeShares.length}</strong>
           <p>
-            {activeShares.length
+            {isConfigured && !user
+              ? "Sign in with Google to manage private share links."
+              : activeShares.length
               ? "Manage recipients, access permissions, and expiry dates."
               : "Create share links after reviewing your biodata."}
           </p>
@@ -41,9 +58,9 @@ export function Home() {
 
         <article className="summary-card summary-card--wide">
           <span className="summary-card__label">Recent activity</span>
-          {bioData.shares.length ? (
+          {shares.length ? (
             <ul className="activity-list">
-              {bioData.shares.slice(0, 3).map((share) => (
+              {shares.slice(0, 3).map((share) => (
                 <li key={share.id}>
                   <span>
                     {share.recipient} - {share.status}

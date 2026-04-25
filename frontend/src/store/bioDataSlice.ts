@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export type TemplateId = "traditional" | "modern" | "premium";
+export type TemplateId = "traditional" | "modern" | "premium" | "split";
 export type MarsDosha = "" | "yes" | "no" | "unknown";
 
 export interface PersonalDetails {
@@ -225,7 +225,7 @@ const bioDataSlice = createSlice({
     },
     submitBioData(state, action: PayloadAction<string>) {
       state.submittedAt = action.payload;
-      state.currentStep = 7;
+      state.currentStep = 6;
       state.error = null;
     },
     setLoading(state, action: PayloadAction<boolean>) {

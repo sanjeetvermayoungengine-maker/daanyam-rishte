@@ -12,7 +12,9 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173
   },
+  cacheDir: "/tmp/vite-cache-frontend",
   test: {
-    environment: "node"
+    environment: "node",
+    cache: { dir: "/tmp/vitest-cache-frontend" }
   }
 });

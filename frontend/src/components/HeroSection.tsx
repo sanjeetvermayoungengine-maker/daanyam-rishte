@@ -10,7 +10,7 @@ export function HeroSection({ hasDraft, hasPublished }: HeroSectionProps) {
     <section className="hero">
       <div className="hero__content">
         <p className="eyebrow">Matrimonial biodata platform</p>
-        <h1>Rishta</h1>
+        <h1>Rishte</h1>
         <p className="lede">
           Create a polished biodata, choose a presentation style, and share only the sections each
           recipient should see.

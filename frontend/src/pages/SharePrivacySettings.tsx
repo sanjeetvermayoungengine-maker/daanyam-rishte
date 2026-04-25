@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../auth/AuthContext";
 import { ShareModal } from "../components/ShareModal";
 import { SharePermissionToggle } from "../components/SharePermissionToggle";
-import { revokeShare, updateSharePermissions, type SharePermissions } from "../store/bioDataSlice";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  listSharesApi,
+  revokeShareApi,
+  updateSharePermissionsApi,
+  type ShareApiRecord,
+} from "../services/shareApi";
+import type { SharePermissions } from "../store/bioDataSlice";
 import { formatDisplayDate, getPublicShareUrl } from "../utils/formHelpers";
 
 const permissionLabels = [
@@ -29,10 +35,34 @@ const permissionLabels = [
 ];
 
 export function SharePrivacySettings() {
-  const dispatch = useAppDispatch();
-  const shares = useAppSelector((state) => state.bioData.shares);
+  const { user, isConfigured } = useAuth();
+  const [shares, setShares] = useState<ShareApiRecord[]>([]);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [copiedShareId, setCopiedShareId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refreshShares = async () => {
+    if (isConfigured && !user) {
+      setShares([]);
+      setError("Sign in with Google to manage share links.");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      setError("");
+      const loadedShares = await listSharesApi();
+      setShares(loadedShares);
+    } catch {
+      setError("Could not load shares right now.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refreshShares();
+  }, [isConfigured, user]);
 
   const copyShareLink = async (id: string, token: string) => {
     const link = getPublicShareUrl(token);
@@ -45,21 +75,21 @@ export function SharePrivacySettings() {
     window.setTimeout(() => setCopiedShareId(null), 1600);
   };
 
-  const updatePermission = (shareId: string, permissionId: keyof SharePermissions, checked: boolean) => {
+  const updatePermission = async (shareId: string, permissionId: keyof SharePermissions, checked: boolean) => {
     const share = shares.find((item) => item.id === shareId);
     if (!share) {
       return;
     }
 
-    dispatch(
-      updateSharePermissions({
-        id: shareId,
-        permissions: {
-          ...share.permissions,
-          [permissionId]: checked
-        }
-      })
-    );
+    try {
+      const updated = await updateSharePermissionsApi(shareId, {
+        ...share.permissions,
+        [permissionId]: checked,
+      });
+      setShares((current) => current.map((item) => (item.id === shareId ? updated : item)));
+    } catch {
+      setError("Could not update permissions right now.");
+    }
   };
 
   return (
@@ -75,7 +105,18 @@ export function SharePrivacySettings() {
         </button>
       </div>
 
-      {shares.length ? (
+      {error ? <p className="field-helper">{error}</p> : null}
+      {isConfigured && !user ? (
+        <div className="empty-state">
+          <h2>Authentication required</h2>
+          <p>Please sign in with Google from the header to access private share controls.</p>
+        </div>
+      ) : null}
+      {!isConfigured || user ? (isLoading ? (
+        <div className="empty-state">
+          <p>Loading share links...</p>
+        </div>
+      ) : shares.length ? (
         <div className="share-list">
           {shares.map((share) => {
             const isExpired = share.expiryDate < new Date().toISOString().slice(0, 10);
@@ -121,9 +162,14 @@ export function SharePrivacySettings() {
                     className="text-button text-button--danger"
                     type="button"
                     disabled={share.status === "revoked"}
-                    onClick={() => {
+                    onClick={async () => {
                       if (window.confirm("Revoke this share link?")) {
-                        dispatch(revokeShare(share.id));
+                        try {
+                          const revoked = await revokeShareApi(share.id);
+                          setShares((current) => current.map((item) => (item.id === share.id ? revoked : item)));
+                        } catch {
+                          setError("Could not revoke the share right now.");
+                        }
                       }
                     }}
                   >
@@ -142,9 +188,13 @@ export function SharePrivacySettings() {
             Create Share
           </button>
         </div>
-      )}
+      )) : null}
 
-      <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} />
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        onShareCreated={(share) => setShares((current) => [share, ...current])}
+      />
     </section>
   );
 }

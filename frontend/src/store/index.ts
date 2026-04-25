@@ -14,9 +14,13 @@ function loadBioDataState(): BioDataState {
       return defaultBioDataState;
     }
 
+    const parsed = JSON.parse(storedValue) as Partial<BioDataState>;
+    // Shares are server-backed; keep local draft only.
+    const { shares: _ignoredShares, ...rest } = parsed;
     return {
       ...defaultBioDataState,
-      ...JSON.parse(storedValue)
+      ...rest,
+      shares: []
     };
   } catch {
     return defaultBioDataState;
@@ -34,7 +38,9 @@ export const store = configureStore({
 
 if (typeof window !== "undefined") {
   store.subscribe(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(store.getState().bioData));
+    const state = store.getState().bioData;
+    const { shares: _ignoredShares, ...draftOnly } = state;
+    window.localStorage.setItem(storageKey, JSON.stringify(draftOnly));
   });
 }
 

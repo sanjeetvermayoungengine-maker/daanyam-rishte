@@ -19,15 +19,20 @@ export function SharePermissionToggle({
 }: SharePermissionToggleProps) {
   return (
     <label className="permission-toggle">
-      <span>
+      <span className="permission-toggle__copy">
         <strong>{label}</strong>
         <small>{description}</small>
       </span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(event) => onChange(id, event.target.checked)}
-      />
+      <span className="permission-toggle__control">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(event) => onChange(id, event.target.checked)}
+        />
+        <span className="permission-toggle__track" aria-hidden="true">
+          <span className="permission-toggle__thumb" />
+        </span>
+      </span>
     </label>
   );
 }

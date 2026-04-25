@@ -3,6 +3,7 @@ import { StepIndicator } from "../../components/StepIndicator";
 import { TemplateCard } from "../../components/TemplateCard";
 import { TemplateViewModern } from "../../components/TemplateView_Modern";
 import { TemplateViewPremium } from "../../components/TemplateView_Premium";
+import { TemplateViewSplit } from "../../components/TemplateView_Split";
 import { TemplateViewTraditional } from "../../components/TemplateView_Traditional";
 import { setCurrentStep, setTemplate, type TemplateId } from "../../store/bioDataSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -16,20 +17,26 @@ const templates: Array<{
   {
     id: "traditional",
     name: "Traditional",
-    description: "Structured biodata with classic sectioning.",
-    accent: "#b42318"
+    description: "Parchment-style with gold ornaments and warm tones.",
+    accent: "#c9921a"
   },
   {
     id: "modern",
     name: "Modern",
-    description: "Cleaner spacing with a contemporary header.",
+    description: "Clean white card with a bold teal gradient header.",
     accent: "#0f766e"
   },
   {
     id: "premium",
     name: "Premium",
-    description: "Elegant highlights for a formal presentation.",
-    accent: "#6d28d9"
+    description: "Dark navy with gold accents for a luxury feel.",
+    accent: "#d4a827"
+  },
+  {
+    id: "split",
+    name: "Split",
+    description: "Bold crimson sidebar paired with a clean white layout.",
+    accent: "#b42318"
   }
 ];
 
@@ -41,6 +48,21 @@ export function Step5ChooseTemplate() {
   const selectTemplate = (template: TemplateId) => {
     dispatch(setTemplate(template));
   };
+
+  function renderPreview() {
+    switch (bioData.template) {
+      case "traditional":
+        return <TemplateViewTraditional bioData={bioData} />;
+      case "modern":
+        return <TemplateViewModern bioData={bioData} />;
+      case "premium":
+        return <TemplateViewPremium bioData={bioData} />;
+      case "split":
+        return <TemplateViewSplit bioData={bioData} />;
+      default:
+        return <TemplateViewTraditional bioData={bioData} />;
+    }
+  }
 
   return (
     <section className="page-shell">
@@ -65,13 +87,7 @@ export function Step5ChooseTemplate() {
           </div>
 
           <div className="template-preview-panel">
-            {bioData.template === "traditional" ? (
-              <TemplateViewTraditional bioData={bioData} compact />
-            ) : bioData.template === "premium" ? (
-              <TemplateViewPremium bioData={bioData} />
-            ) : (
-              <TemplateViewModern bioData={bioData} />
-            )}
+            {renderPreview()}
           </div>
         </div>
 
@@ -90,7 +106,7 @@ export function Step5ChooseTemplate() {
             className="button button--primary"
             type="button"
             onClick={() => {
-              dispatch(setCurrentStep(7));
+              dispatch(setCurrentStep(6));
               navigate("/biodata/review");
             }}
           >
