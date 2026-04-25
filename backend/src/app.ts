@@ -1,5 +1,8 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { shareRoutes } from "./routes/shareRoutes.js";
 
 export function getHealthStatus() {
   return {
@@ -18,9 +21,10 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
 export function createApp() {
   const app = express();
 
+  app.use(helmet());
   app.use(
     cors({
-      origin: (origin, callback) => {
+      origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
         // Allow server-to-server / curl requests (no origin header)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
@@ -31,10 +35,20 @@ export function createApp() {
   );
 
   app.use(express.json());
+  app.use(
+    "/api/shares/:token",
+    rateLimit({
+      windowMs: 60 * 1000,
+      max: 60,
+      standardHeaders: true,
+      legacyHeaders: false,
+    })
+  );
 
   app.get("/api/health", (_req, res) => {
     res.status(200).json(getHealthStatus());
   });
+  app.use("/api/shares", shareRoutes);
 
   return app;
 }

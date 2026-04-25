@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { createShare, type SharePermissions, type ShareRecord } from "../store/bioDataSlice";
-import { useAppDispatch } from "../store/hooks";
+import type { SharePermissions, ShareRecord } from "../store/bioDataSlice";
+import { useAppSelector } from "../store/hooks";
+import { createShareApi } from "../services/shareApi";
 import { defaultSharePermissions } from "../services/shareService";
 import { getPublicShareUrl } from "../utils/formHelpers";
 import { Modal } from "./Modal";
@@ -10,6 +11,7 @@ import { SharePermissionToggle } from "./SharePermissionToggle";
 type ShareModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onShareCreated?: (share: ShareRecord) => void;
 };
 
 const permissionCopy = [
@@ -35,8 +37,8 @@ const permissionCopy = [
   }
 ];
 
-export function ShareModal({ isOpen, onClose }: ShareModalProps) {
-  const dispatch = useAppDispatch();
+export function ShareModal({ isOpen, onClose, onShareCreated }: ShareModalProps) {
+  const bioData = useAppSelector((state) => state.bioData);
   const defaultExpiry = useMemo(() => {
     const date = new Date();
     date.setDate(date.getDate() + 30);
@@ -48,6 +50,7 @@ export function ShareModal({ isOpen, onClose }: ShareModalProps) {
   const [error, setError] = useState("");
   const [createdShare, setCreatedShare] = useState<ShareRecord | null>(null);
   const [copyStatus, setCopyStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updatePermission = (id: keyof SharePermissions, checked: boolean) => {
     setPermissions((current) => ({ ...current, [id]: checked }));
@@ -84,22 +87,30 @@ export function ShareModal({ isOpen, onClose }: ShareModalProps) {
     setCopyStatus("Copy manually");
   };
 
-  const handleSubmit = () => {
-    if (!recipient.trim()) {
+  const handleSubmit = async () => {
+    if (!recipient.trim() || isSubmitting) {
       setError("Add an email or label for this share.");
       return;
     }
 
-    const action = dispatch(
-      createShare({
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const share = await createShareApi({
         recipient: recipient.trim(),
         expiryDate,
-        permissions
-      })
-    );
-
-    setCreatedShare(action.payload);
-    resetForm();
+        permissions,
+        bioData,
+      });
+      setCreatedShare(share);
+      onShareCreated?.(share);
+      resetForm();
+    } catch {
+      setError("Could not create share link right now. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const createAnotherShare = () => {
@@ -172,8 +183,8 @@ export function ShareModal({ isOpen, onClose }: ShareModalProps) {
             <button className="button button--secondary" type="button" onClick={handleClose}>
               Cancel
             </button>
-            <button className="button button--primary" type="button" onClick={handleSubmit}>
-              Create Link
+            <button className="button button--primary" type="button" disabled={isSubmitting} onClick={handleSubmit}>
+              {isSubmitting ? "Creating..." : "Create Link"}
             </button>
           </div>
         </>

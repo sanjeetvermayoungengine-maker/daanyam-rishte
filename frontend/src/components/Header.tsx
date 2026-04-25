@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { hasStartedBioData } from "../utils/formHelpers";
 import { useAppSelector } from "../store/hooks";
 
@@ -12,6 +13,7 @@ const navItems = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isConfigured, signInWithGoogle, signOut } = useAuth();
   const bioData = useAppSelector((state) => state.bioData);
   const statusLabel = bioData.submittedAt
     ? "Published"
@@ -52,6 +54,31 @@ export function Header() {
             {item.label}
           </NavLink>
         ))}
+        {isConfigured ? (
+          user ? (
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => {
+                void signOut();
+                setIsOpen(false);
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              className="text-button"
+              type="button"
+              onClick={() => {
+                void signInWithGoogle();
+                setIsOpen(false);
+              }}
+            >
+              Sign in with Google
+            </button>
+          )
+        ) : null}
       </nav>
     </header>
   );
