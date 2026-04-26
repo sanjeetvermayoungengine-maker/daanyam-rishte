@@ -1,8 +1,14 @@
 import express from "express";
 import cors from "cors";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
+import helmetImport from "helmet";
+import rateLimitImport from "express-rate-limit";
+import { geocodingRoutes } from "./routes/geocodingRoutes.js";
+import { kundliRoutes } from "./routes/kundliRoutes.js";
 import { shareRoutes } from "./routes/shareRoutes.js";
+
+const helmet = (helmetImport as typeof helmetImport & { default?: typeof helmetImport }).default ?? helmetImport;
+const rateLimit =
+  (rateLimitImport as typeof rateLimitImport & { default?: typeof rateLimitImport }).default ?? rateLimitImport;
 
 export function getHealthStatus() {
   return {
@@ -48,6 +54,8 @@ export function createApp() {
   app.get("/api/health", (_req, res) => {
     res.status(200).json(getHealthStatus());
   });
+  app.use("/api/geocoding", geocodingRoutes);
+  app.use("/api/kundli", kundliRoutes);
   app.use("/api/shares", shareRoutes);
 
   return app;

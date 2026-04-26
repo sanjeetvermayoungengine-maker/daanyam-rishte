@@ -1,16 +1,22 @@
 import { Router } from "express";
+import "../types/express.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import {
   createShare,
+  getShareAnalyticsSummary,
+  getSharePresetDefinitions,
   getPublicShareByToken,
   listShares,
   revokeShare,
   updateSharePermissions,
 } from "../services/shareService.js";
-import type { BioDataSnapshot, SharePermissions } from "../types/share.js";
+import type { BioDataSnapshot, SharePermissions, ShareSource, ShareType } from "../types/share.js";
 
 type CreateShareBody = {
   recipient?: string;
+  shareType?: ShareType | string;
+  label?: string | null;
+  source?: ShareSource | string;
   expiryDate?: string;
   permissions?: Partial<SharePermissions>;
   bioData?: BioDataSnapshot;
@@ -18,11 +24,23 @@ type CreateShareBody = {
 
 export const shareRoutes = Router();
 
+shareRoutes.get("/presets", (_req, res) => {
+  res.status(200).json({ presets: getSharePresetDefinitions() });
+});
+
 shareRoutes.get("/", requireAuth, async (req, res) => {
   try {
     res.status(200).json({ shares: await listShares(req.auth!.userId) });
   } catch {
     res.status(500).json({ error: "unable to fetch shares" });
+  }
+});
+
+shareRoutes.get("/analytics/summary", requireAuth, async (req, res) => {
+  try {
+    res.status(200).json({ summary: await getShareAnalyticsSummary(req.auth!.userId) });
+  } catch {
+    res.status(500).json({ error: "unable to fetch share analytics" });
   }
 });
 
@@ -37,13 +55,11 @@ shareRoutes.post("/", requireAuth, async (req, res) => {
     const share = await createShare({
       ownerUserId: req.auth!.userId,
       recipient: body.recipient ?? "",
+      shareType: body.shareType,
+      label: body.label,
+      source: body.source,
       expiryDate: body.expiryDate ?? "",
-      permissions: {
-        viewBasic: body.permissions?.viewBasic ?? true,
-        viewPhotos: body.permissions?.viewPhotos ?? true,
-        viewHoroscope: body.permissions?.viewHoroscope ?? false,
-        viewContact: body.permissions?.viewContact ?? false,
-      },
+      permissions: body.permissions,
       bioData: body.bioData,
     });
 
@@ -88,7 +104,11 @@ shareRoutes.patch("/:id/revoke", requireAuth, async (req, res) => {
 
 shareRoutes.get("/:token", async (req, res) => {
   try {
-    const result = await getPublicShareByToken(req.params.token);
+    const result = await getPublicShareByToken(req.params.token, {
+      userAgent: req.get("user-agent"),
+      referrer: req.get("referer") ?? req.get("referrer"),
+      ipAddress: req.ip,
+    });
     if (result.kind === "not_found") {
       res.status(404).json({ code: "not_found", message: "share token not found" });
       return;

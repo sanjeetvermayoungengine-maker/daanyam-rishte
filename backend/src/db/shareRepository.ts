@@ -1,6 +1,15 @@
 import crypto from "node:crypto";
 import type { Pool } from "pg";
-import type { BioDataSnapshot, SharePermissions, ShareRecord, StoredShare } from "../types/share.js";
+import type {
+  BioDataSnapshot,
+  ShareAccessEvent,
+  ShareEventType,
+  SharePermissions,
+  ShareRecord,
+  ShareSource,
+  ShareType,
+  StoredShare,
+} from "../types/share.js";
 
 type ShareStatus = ShareRecord["status"];
 
@@ -8,11 +17,17 @@ type PersistedShareRow = {
   id: string;
   token: string;
   recipient: string;
+  share_type: ShareType;
+  label: string | null;
+  source: ShareSource;
   permissions: SharePermissions;
   expiry_date: string;
   created_at: string;
   last_accessed_at: string | null;
   status: ShareStatus;
+  open_count?: string;
+  first_opened_at?: string | null;
+  last_opened_at?: string | null;
 };
 
 export interface ShareRepository {
@@ -21,6 +36,9 @@ export interface ShareRepository {
     id: string;
     token: string;
     recipient: string;
+    shareType: ShareType;
+    label: string | null;
+    source: ShareSource;
     permissions: SharePermissions;
     expiryDate: string;
     bioData: BioDataSnapshot;
@@ -30,6 +48,15 @@ export interface ShareRepository {
   revoke(shareId: string, ownerUserId: string): Promise<ShareRecord | null>;
   getByToken(token: string): Promise<StoredShare | null>;
   touchLastAccessed(shareId: string): Promise<ShareRecord | null>;
+  createEvent(input: {
+    id: string;
+    shareId: string;
+    eventType: ShareEventType;
+    userAgent: string | null;
+    referrer: string | null;
+    ipHash: string | null;
+  }): Promise<ShareAccessEvent>;
+  listEventsByShareIds(shareIds: string[]): Promise<ShareAccessEvent[]>;
   resetForTests(): Promise<void>;
 }
 
@@ -38,23 +65,53 @@ function toShareRecord(row: PersistedShareRow): ShareRecord {
     id: row.id,
     token: row.token,
     recipient: row.recipient,
+    shareType: row.share_type,
+    label: row.label,
+    source: row.source,
     permissions: row.permissions,
     expiryDate: row.expiry_date,
     createdAt: row.created_at,
     lastAccessed: row.last_accessed_at,
+    openCount: Number(row.open_count ?? 0),
+    firstOpenedAt: row.first_opened_at ?? null,
+    lastOpenedAt: row.last_opened_at ?? null,
     status: row.status,
+  };
+}
+
+function toShareAccessEvent(row: {
+  id: string;
+  share_id: string;
+  event_type: ShareEventType;
+  occurred_at: string;
+  user_agent: string | null;
+  referrer: string | null;
+  ip_hash: string | null;
+}): ShareAccessEvent {
+  return {
+    id: row.id,
+    shareId: row.share_id,
+    eventType: row.event_type,
+    occurredAt: row.occurred_at,
+    userAgent: row.user_agent,
+    referrer: row.referrer,
+    ipHash: row.ip_hash,
   };
 }
 
 export class InMemoryShareRepository implements ShareRepository {
   private readonly sharesById = new Map<string, StoredShare>();
   private readonly shareIdByToken = new Map<string, string>();
+  private readonly eventsByShareId = new Map<string, ShareAccessEvent[]>();
 
   async create(input: {
     ownerUserId: string;
     id: string;
     token: string;
     recipient: string;
+    shareType: ShareType;
+    label: string | null;
+    source: ShareSource;
     permissions: SharePermissions;
     expiryDate: string;
     bioData: BioDataSnapshot;
@@ -63,10 +120,16 @@ export class InMemoryShareRepository implements ShareRepository {
       id: input.id,
       token: input.token,
       recipient: input.recipient,
+      shareType: input.shareType,
+      label: input.label,
+      source: input.source,
       permissions: input.permissions,
       expiryDate: input.expiryDate,
       createdAt: new Date().toISOString(),
       lastAccessed: null,
+      openCount: 0,
+      firstOpenedAt: null,
+      lastOpenedAt: null,
       status: "active",
     };
 
@@ -76,10 +139,22 @@ export class InMemoryShareRepository implements ShareRepository {
   }
 
   async list(ownerUserId: string) {
-    return Array.from(this.sharesById.values())
+    const shares = Array.from(this.sharesById.values())
       .filter((entry) => entry.ownerUserId === ownerUserId)
       .map((entry) => entry.record)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    return shares.map((share) => {
+      const openEvents = (this.eventsByShareId.get(share.id) ?? [])
+        .filter((event) => event.eventType === "share_opened")
+        .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt));
+      return {
+        ...share,
+        openCount: openEvents.length,
+        firstOpenedAt: openEvents[0]?.occurredAt ?? null,
+        lastOpenedAt: openEvents[openEvents.length - 1]?.occurredAt ?? null,
+      };
+    });
   }
 
   async updatePermissions(shareId: string, ownerUserId: string, permissions: SharePermissions) {
@@ -117,9 +192,37 @@ export class InMemoryShareRepository implements ShareRepository {
     return stored.record;
   }
 
+  async createEvent(input: {
+    id: string;
+    shareId: string;
+    eventType: ShareEventType;
+    userAgent: string | null;
+    referrer: string | null;
+    ipHash: string | null;
+  }) {
+    const event: ShareAccessEvent = {
+      id: input.id,
+      shareId: input.shareId,
+      eventType: input.eventType,
+      occurredAt: new Date().toISOString(),
+      userAgent: input.userAgent,
+      referrer: input.referrer,
+      ipHash: input.ipHash,
+    };
+    const events = this.eventsByShareId.get(input.shareId) ?? [];
+    events.push(event);
+    this.eventsByShareId.set(input.shareId, events);
+    return event;
+  }
+
+  async listEventsByShareIds(shareIds: string[]) {
+    return shareIds.flatMap((shareId) => this.eventsByShareId.get(shareId) ?? []);
+  }
+
   async resetForTests() {
     this.sharesById.clear();
     this.shareIdByToken.clear();
+    this.eventsByShareId.clear();
   }
 }
 
@@ -131,6 +234,9 @@ export class PostgresShareRepository implements ShareRepository {
     id: string;
     token: string;
     recipient: string;
+    shareType: ShareType;
+    label: string | null;
+    source: ShareSource;
     permissions: SharePermissions;
     expiryDate: string;
     bioData: BioDataSnapshot;
@@ -144,10 +250,24 @@ export class PostgresShareRepository implements ShareRepository {
         [profileId, input.ownerUserId, JSON.stringify(input.bioData)]
       );
       const result = await client.query<PersistedShareRow>(
-        `INSERT INTO share_links (id, owner_user_id, profile_id, token, recipient, permissions, expiry_date, status)
-         VALUES ($1::uuid, $2, $3::uuid, $4, $5, $6::jsonb, $7::date, 'active')
-         RETURNING id, token, recipient, permissions, expiry_date::text, created_at::text, last_accessed_at::text, status`,
-        [input.id, input.ownerUserId, profileId, input.token, input.recipient, JSON.stringify(input.permissions), input.expiryDate]
+        `INSERT INTO share_links (
+           id, owner_user_id, profile_id, token, recipient, share_type, label, source, permissions, expiry_date, status
+         )
+         VALUES ($1::uuid, $2, $3::uuid, $4, $5, $6, $7, $8, $9::jsonb, $10::date, 'active')
+         RETURNING
+           id, token, recipient, share_type, label, source, permissions, expiry_date::text, created_at::text, last_accessed_at::text, status`,
+        [
+          input.id,
+          input.ownerUserId,
+          profileId,
+          input.token,
+          input.recipient,
+          input.shareType,
+          input.label,
+          input.source,
+          JSON.stringify(input.permissions),
+          input.expiryDate,
+        ]
       );
       await client.query("COMMIT");
       return toShareRecord(result.rows[0]);
@@ -161,10 +281,20 @@ export class PostgresShareRepository implements ShareRepository {
 
   async list(ownerUserId: string) {
     const result = await this.pool.query<PersistedShareRow>(
-      `SELECT id, token, recipient, permissions, expiry_date::text, created_at::text, last_accessed_at::text, status
-       FROM share_links
-       WHERE owner_user_id = $1
-       ORDER BY created_at DESC`
+      `SELECT
+         sl.id, sl.token, sl.recipient,
+         COALESCE(sl.share_type, 'prospect') AS share_type,
+         sl.label,
+         COALESCE(sl.source, 'direct_flow') AS source,
+         sl.permissions, sl.expiry_date::text, sl.created_at::text, sl.last_accessed_at::text, sl.status,
+         COUNT(*) FILTER (WHERE sae.event_type = 'share_opened')::text AS open_count,
+         MIN(sae.occurred_at)::text FILTER (WHERE sae.event_type = 'share_opened') AS first_opened_at,
+         MAX(sae.occurred_at)::text FILTER (WHERE sae.event_type = 'share_opened') AS last_opened_at
+       FROM share_links sl
+       LEFT JOIN share_access_events sae ON sae.share_id = sl.id
+       WHERE sl.owner_user_id = $1
+       GROUP BY sl.id
+       ORDER BY sl.created_at DESC`
       ,
       [ownerUserId]
     );
@@ -176,7 +306,13 @@ export class PostgresShareRepository implements ShareRepository {
       `UPDATE share_links
        SET permissions = $2::jsonb
        WHERE id = $1::uuid AND owner_user_id = $3
-       RETURNING id, token, recipient, permissions, expiry_date::text, created_at::text, last_accessed_at::text, status`,
+       RETURNING
+         id, token, recipient,
+         COALESCE(share_type, 'prospect') AS share_type,
+         label,
+         COALESCE(source, 'direct_flow') AS source,
+         permissions, expiry_date::text, created_at::text, last_accessed_at::text, status,
+         '0' AS open_count, NULL::text AS first_opened_at, NULL::text AS last_opened_at`,
       [shareId, JSON.stringify(permissions), ownerUserId]
     );
     return result.rows[0] ? toShareRecord(result.rows[0]) : null;
@@ -187,7 +323,13 @@ export class PostgresShareRepository implements ShareRepository {
       `UPDATE share_links
        SET status = 'revoked'
        WHERE id = $1::uuid AND owner_user_id = $2
-       RETURNING id, token, recipient, permissions, expiry_date::text, created_at::text, last_accessed_at::text, status`,
+       RETURNING
+         id, token, recipient,
+         COALESCE(share_type, 'prospect') AS share_type,
+         label,
+         COALESCE(source, 'direct_flow') AS source,
+         permissions, expiry_date::text, created_at::text, last_accessed_at::text, status,
+         '0' AS open_count, NULL::text AS first_opened_at, NULL::text AS last_opened_at`,
       [shareId, ownerUserId]
     );
     return result.rows[0] ? toShareRecord(result.rows[0]) : null;
@@ -198,7 +340,12 @@ export class PostgresShareRepository implements ShareRepository {
       PersistedShareRow & { payload: BioDataSnapshot; owner_user_id: string }
     >(
       `SELECT
-         s.id, s.token, s.recipient, s.permissions, s.expiry_date::text, s.created_at::text, s.last_accessed_at::text, s.status, s.owner_user_id,
+         s.id, s.token, s.recipient,
+         COALESCE(s.share_type, 'prospect') AS share_type,
+         s.label,
+         COALESCE(s.source, 'direct_flow') AS source,
+         s.permissions, s.expiry_date::text, s.created_at::text, s.last_accessed_at::text, s.status, s.owner_user_id,
+         '0' AS open_count, NULL::text AS first_opened_at, NULL::text AS last_opened_at,
          p.payload
        FROM share_links s
        INNER JOIN biodata_profiles p ON p.id = s.profile_id
@@ -221,13 +368,67 @@ export class PostgresShareRepository implements ShareRepository {
       `UPDATE share_links
        SET last_accessed_at = NOW()
        WHERE id = $1::uuid
-       RETURNING id, token, recipient, permissions, expiry_date::text, created_at::text, last_accessed_at::text, status`,
+       RETURNING
+         id, token, recipient,
+         COALESCE(share_type, 'prospect') AS share_type,
+         label,
+         COALESCE(source, 'direct_flow') AS source,
+         permissions, expiry_date::text, created_at::text, last_accessed_at::text, status,
+         '0' AS open_count, NULL::text AS first_opened_at, NULL::text AS last_opened_at`,
       [shareId]
     );
     return result.rows[0] ? toShareRecord(result.rows[0]) : null;
   }
 
+  async createEvent(input: {
+    id: string;
+    shareId: string;
+    eventType: ShareEventType;
+    userAgent: string | null;
+    referrer: string | null;
+    ipHash: string | null;
+  }) {
+    const result = await this.pool.query<{
+      id: string;
+      share_id: string;
+      event_type: ShareEventType;
+      occurred_at: string;
+      user_agent: string | null;
+      referrer: string | null;
+      ip_hash: string | null;
+    }>(
+      `INSERT INTO share_access_events (id, share_id, event_type, user_agent, referrer, ip_hash)
+       VALUES ($1::uuid, $2::uuid, $3, $4, $5, $6)
+       RETURNING id, share_id, event_type, occurred_at::text, user_agent, referrer, ip_hash`,
+      [input.id, input.shareId, input.eventType, input.userAgent, input.referrer, input.ipHash]
+    );
+    return toShareAccessEvent(result.rows[0]);
+  }
+
+  async listEventsByShareIds(shareIds: string[]) {
+    if (!shareIds.length) {
+      return [];
+    }
+    const result = await this.pool.query<{
+      id: string;
+      share_id: string;
+      event_type: ShareEventType;
+      occurred_at: string;
+      user_agent: string | null;
+      referrer: string | null;
+      ip_hash: string | null;
+    }>(
+      `SELECT id, share_id, event_type, occurred_at::text, user_agent, referrer, ip_hash
+       FROM share_access_events
+       WHERE share_id = ANY($1::uuid[])
+       ORDER BY occurred_at ASC`,
+      [shareIds]
+    );
+    return result.rows.map(toShareAccessEvent);
+  }
+
   async resetForTests() {
+    await this.pool.query("DELETE FROM share_access_events");
     await this.pool.query("DELETE FROM share_links");
     await this.pool.query("DELETE FROM biodata_profiles");
   }
