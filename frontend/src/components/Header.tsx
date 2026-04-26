@@ -5,10 +5,10 @@ import { hasStartedBioData } from "../utils/formHelpers";
 import { useAppSelector } from "../store/hooks";
 
 const navItems = [
-  { label: "Home", to: "/" },
+  { label: "Home", to: "/dashboard" },
   { label: "Biodata", to: "/biodata/personal" },
   { label: "Preview", to: "/preview" },
-  { label: "Shares", to: "/shares" }
+  { label: "Shares", to: "/shares" },
 ];
 
 export function Header() {
@@ -25,7 +25,7 @@ export function Header() {
     <header className="site-header">
       <NavLink className="brand" to="/" onClick={() => setIsOpen(false)}>
         <span className="brand-mark" aria-hidden="true">
-          R
+          र
         </span>
         <span>
           <strong>Rishte</strong>

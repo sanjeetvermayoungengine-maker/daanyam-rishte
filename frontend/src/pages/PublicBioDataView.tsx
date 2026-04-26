@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { PublicHoroscopeCard } from "../components/PublicHoroscopeCard";
 import { Link, useParams } from "react-router-dom";
 import { TemplateViewModern } from "../components/TemplateView_Modern";
 import { TemplateViewPremium } from "../components/TemplateView_Premium";
 import { TemplateViewSplit } from "../components/TemplateView_Split";
 import { TemplateViewTraditional } from "../components/TemplateView_Traditional";
 import { fetchPublicShareByToken, type PublicShareError, type PublicShareResponse } from "../services/shareApi";
+import { getHoroscopeAccessLevel } from "../utils/sharePermissions";
 import { formatDisplayDate } from "../utils/formHelpers";
 
 export function PublicBioDataView() {
@@ -62,12 +64,14 @@ export function PublicBioDataView() {
   }
 
   const { share, bioData } = result;
+  const horoscopeAccess = getHoroscopeAccessLevel(share.permissions);
+  const canShowTemplate = share.permissions.viewBasic;
 
   function renderTemplate() {
     const props = {
       bioData,
       showPhotos: share.permissions.viewPhotos,
-      showHoroscope: share.permissions.viewHoroscope,
+      horoscopeAccess,
       showContact: share.permissions.viewContact,
     };
 
@@ -100,14 +104,16 @@ export function PublicBioDataView() {
         ) : null}
       </div>
 
-      {share.permissions.viewBasic ? (
+      {canShowTemplate ? (
         <div className="preview-frame">
           {renderTemplate()}
         </div>
+      ) : horoscopeAccess !== "none" ? (
+        <PublicHoroscopeCard horoscope={bioData.horoscope} accessLevel={horoscopeAccess} />
       ) : (
         <div className="empty-state">
-          <h2>Basic details are hidden</h2>
-          <p>The sender has not granted access to the biodata profile details.</p>
+          <h2>Nothing is shared on this link</h2>
+          <p>The sender has not granted access to biodata or horoscope details on this link.</p>
         </div>
       )}
     </section>

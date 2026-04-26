@@ -2,9 +2,20 @@ import { FormEvent, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FormField } from "../../components/FormField";
 import { StepIndicator } from "../../components/StepIndicator";
-import { setCurrentStep, updateHoroscope, type HoroscopeDetails, type MarsDosha } from "../../store/bioDataSlice";
+import { searchBirthPlacesApi } from "../../services/geocodingApi";
+import { generateKundliApi } from "../../services/kundliApi";
+import {
+  setCurrentStep,
+  setHoroscopeComputationError,
+  setHoroscopeComputationLoading,
+  setHoroscopeComputationSuccess,
+  updateHoroscope,
+  type HoroscopeDetails,
+  type ResolvedBirthPlace,
+  type MarsDosha
+} from "../../store/bioDataSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { nakshatraOptions, rashiOptions, suggestRashiFromDate } from "../../utils/astroCalculations";
+import { getBirthPlaceLabel, getComputedKundli, hasResolvedBirthPlace } from "../../utils/horoscope";
 import { hasErrors, validateHoroscopeDetails } from "../../utils/validation";
 
 export function Step4Horoscope() {
@@ -12,32 +23,147 @@ export function Step4Horoscope() {
   const navigate = useNavigate();
   const horoscope = useAppSelector((state) => state.bioData.horoscope);
   const [submitted, setSubmitted] = useState(false);
+  const [computeMessage, setComputeMessage] = useState("");
+  const [locationCandidates, setLocationCandidates] = useState<ResolvedBirthPlace[]>([]);
+  const [locationSearchError, setLocationSearchError] = useState("");
+  const [isSearchingLocations, setIsSearchingLocations] = useState(false);
+  const [hasSearchedLocations, setHasSearchedLocations] = useState(false);
   const errors = useMemo(() => validateHoroscopeDetails(horoscope), [horoscope]);
   const isInvalid = hasErrors(errors);
+  const computed = getComputedKundli(horoscope);
+  const resolvedBirthPlace = getBirthPlaceLabel(horoscope);
+  const hasResolvedLocation = hasResolvedBirthPlace(horoscope);
 
   const updateField = (key: keyof HoroscopeDetails, value: string) => {
     dispatch(updateHoroscope({ [key]: value }));
   };
 
-  const handleDobChange = (value: string) => {
-    dispatch(
-      updateHoroscope({
-        dob: value,
-        rashi: horoscope.rashi || suggestRashiFromDate(value)
-      })
-    );
+  const handleBirthPlaceChange = (value: string) => {
+    dispatch(updateHoroscope({
+      birthPlace: value,
+      selectedBirthPlaceLabel: "",
+      birthLatitude: "",
+      birthLongitude: "",
+      birthLocation: null
+    }));
+    setLocationCandidates([]);
+    setHasSearchedLocations(false);
+    setLocationSearchError("");
+  };
+
+  const handleSearchLocations = async () => {
+    const query = horoscope.birthPlace.trim();
+    setHasSearchedLocations(true);
+    setLocationSearchError("");
+    setComputeMessage("");
+
+    if (!query) {
+      setLocationCandidates([]);
+      setLocationSearchError("Enter a birthplace before searching.");
+      return;
+    }
+
+    setIsSearchingLocations(true);
+
+    try {
+      const matches = await searchBirthPlacesApi(query);
+      setLocationCandidates(matches);
+
+      if (matches.length === 0) {
+        setLocationSearchError("We could not find a clear birthplace match. Check the spelling and try again.");
+      }
+    } catch (error) {
+      if (typeof error === "object" && error && "response" in error) {
+        const response = (error as { response?: { data?: unknown } }).response;
+        const data = response?.data;
+
+        if (typeof data === "object" && data && "error" in data && typeof data.error === "string") {
+          setLocationSearchError(data.error);
+        } else {
+          setLocationSearchError("We could not search birthplaces right now. Please try again.");
+        }
+      } else {
+        setLocationSearchError("We could not search birthplaces right now. Please try again.");
+      }
+
+      setLocationCandidates([]);
+    } finally {
+      setIsSearchingLocations(false);
+    }
+  };
+
+  const handleSelectLocation = (location: ResolvedBirthPlace) => {
+    dispatch(updateHoroscope({
+      selectedBirthPlaceLabel: location.displayName,
+      birthLatitude: String(location.latitude),
+      birthLongitude: String(location.longitude),
+      birthLocation: location
+    }));
+    setComputeMessage("");
+    setLocationSearchError("");
   };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
+    setComputeMessage("");
 
     if (isInvalid) {
       return;
     }
 
+    if (!computed) {
+      setComputeMessage("Generate the kundli once so you can review the computed horoscope before continuing.");
+      return;
+    }
+
     dispatch(setCurrentStep(5));
     navigate("/biodata/template");
+  };
+
+  const resolveGenerationError = (error: unknown) => {
+    if (typeof error === "object" && error && "response" in error) {
+      const response = (error as { response?: { data?: unknown } }).response;
+      const data = response?.data;
+      if (typeof data === "object" && data && "error" in data && typeof data.error === "string") {
+        return data.error;
+      }
+    }
+
+    return "We could not generate the kundli right now. Please review the birth details and try again.";
+  };
+
+  const handleGenerateKundli = async () => {
+    setSubmitted(true);
+    setComputeMessage("");
+
+    if (isInvalid) {
+      return;
+    }
+
+    if (!hasResolvedLocation) {
+      dispatch(setHoroscopeComputationError("Select a birthplace match before generating the kundli."));
+      return;
+    }
+
+    dispatch(setHoroscopeComputationLoading());
+
+    try {
+      const kundli = await generateKundliApi({
+        dob: horoscope.dob,
+        birthTime: horoscope.birthTime,
+        birthPlace: horoscope.birthPlace,
+        selectedBirthPlaceLabel: horoscope.selectedBirthPlaceLabel,
+        birthLatitude: horoscope.birthLatitude,
+        birthLongitude: horoscope.birthLongitude,
+        birthTimezone: horoscope.birthTimezone,
+        birthLocation: horoscope.birthLocation
+      });
+
+      dispatch(setHoroscopeComputationSuccess(kundli));
+    } catch (error) {
+      dispatch(setHoroscopeComputationError(resolveGenerationError(error)));
+    }
   };
 
   return (
@@ -47,7 +173,9 @@ export function Step4Horoscope() {
         <div className="section-heading">
           <p className="eyebrow">Horoscope</p>
           <h1>Kundali details</h1>
-          <p className="muted-text">Capture astrological information that can be shared selectively.</p>
+          <p className="muted-text">
+            Enter birth details, generate the kundli from the astro engine, and review the computed output.
+          </p>
         </div>
 
         <div className="form-grid form-grid--two">
@@ -58,7 +186,7 @@ export function Step4Horoscope() {
             value={horoscope.dob}
             required
             error={submitted ? errors.dob : undefined}
-            onChange={handleDobChange}
+            onChange={(value) => updateField("dob", value)}
           />
           <FormField
             label="Birth Time"
@@ -75,27 +203,15 @@ export function Step4Horoscope() {
             value={horoscope.birthPlace}
             required
             error={submitted ? errors.birthPlace : undefined}
-            onChange={(value) => updateField("birthPlace", value)}
+            helperText="Search and select the correct place so we can use exact coordinates for kundli generation."
+            onChange={handleBirthPlaceChange}
           />
           <FormField
-            label="Rashi"
-            name="rashi"
-            type="select"
-            options={rashiOptions}
-            value={horoscope.rashi}
-            required
-            error={submitted ? errors.rashi : undefined}
-            onChange={(value) => updateField("rashi", value)}
-          />
-          <FormField
-            label="Nakshatra"
-            name="nakshatra"
-            type="select"
-            options={nakshatraOptions}
-            value={horoscope.nakshatra}
-            required
-            error={submitted ? errors.nakshatra : undefined}
-            onChange={(value) => updateField("nakshatra", value)}
+            label="Birth Timezone"
+            name="birthTimezone"
+            value={horoscope.birthTimezone}
+            helperText="Defaults to Asia/Kolkata for this sprint."
+            onChange={(value) => updateField("birthTimezone", value)}
           />
           <FormField
             label="Gotra"
@@ -104,6 +220,139 @@ export function Step4Horoscope() {
             onChange={(value) => updateField("gotra", value)}
           />
         </div>
+
+        <section className="location-search-panel" aria-live="polite">
+          <div className="location-search-panel__header">
+            <div>
+              <p className="eyebrow">Birthplace Resolution</p>
+              <h2>Search and confirm the location</h2>
+            </div>
+            <button
+              className="button button--secondary"
+              type="button"
+              disabled={isSearchingLocations}
+              onClick={() => void handleSearchLocations()}
+            >
+              {isSearchingLocations ? "Searching..." : "Search Place"}
+            </button>
+          </div>
+
+          {locationSearchError ? (
+            <p className="field-error">{locationSearchError}</p>
+          ) : null}
+
+          {hasResolvedLocation ? (
+            <div className="location-selection">
+              <strong>{resolvedBirthPlace}</strong>
+              <span>
+                {horoscope.birthLatitude}, {horoscope.birthLongitude}
+              </span>
+            </div>
+          ) : (
+            <p className="muted-text">
+              Pick the right birthplace match before generating the kundli. We do not auto-select uncertain matches.
+            </p>
+          )}
+
+          {locationCandidates.length > 0 ? (
+            <div className="location-candidate-list">
+              {locationCandidates.map((location) => {
+                const isSelected = horoscope.selectedBirthPlaceLabel === location.displayName;
+                return (
+                  <button
+                    key={`${location.displayName}-${location.latitude}-${location.longitude}`}
+                    className={isSelected ? "location-candidate location-candidate--selected" : "location-candidate"}
+                    type="button"
+                    onClick={() => handleSelectLocation(location)}
+                  >
+                    <strong>{location.displayName}</strong>
+                    <span>
+                      {[location.state, location.country].filter(Boolean).join(", ") || "Location match"}
+                    </span>
+                    <span>
+                      {location.confidence !== null ? `Confidence ${Math.round(location.confidence * 100)}%` : "Confidence unavailable"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+
+          {hasSearchedLocations && !locationCandidates.length && !locationSearchError ? (
+            <p className="muted-text">No matches yet. Try a broader city or district name.</p>
+          ) : null}
+        </section>
+
+        <div className="kundli-actions">
+          <button
+            className="button button--primary"
+            type="button"
+            disabled={horoscope.computedKundli.status === "loading"}
+            onClick={() => void handleGenerateKundli()}
+          >
+            {horoscope.computedKundli.status === "loading" ? "Generating..." : "Generate Kundli"}
+          </button>
+          <p className="field-helper">
+            Kundli generation runs through the Rishte backend and uses the confirmed birthplace coordinates.
+          </p>
+        </div>
+
+        <section className="kundli-result-card" aria-live="polite">
+          <div className="kundli-result-card__header">
+            <div>
+              <p className="eyebrow">Computed Result</p>
+              <h2>Astro engine output</h2>
+            </div>
+            <span className={`status-pill ${computed ? "" : "status-pill--muted"}`}>
+              {horoscope.computedKundli.status === "loading"
+                ? "Generating"
+                : computed
+                  ? "Ready"
+                  : "Not generated"}
+            </span>
+          </div>
+
+          {horoscope.computedKundli.error ? (
+            <p className="field-error">{horoscope.computedKundli.error}</p>
+          ) : null}
+
+          {computeMessage ? (
+            <p className="field-error">{computeMessage}</p>
+          ) : null}
+
+          {computed ? (
+            <>
+              <div className="kundli-result-grid">
+                <div>
+                  <span>Rashi</span>
+                  <strong>{computed.rashi || "—"}</strong>
+                </div>
+                <div>
+                  <span>Nakshatra</span>
+                  <strong>{computed.nakshatra || "—"}</strong>
+                </div>
+                <div>
+                  <span>Pada</span>
+                  <strong>{computed.pada ?? "—"}</strong>
+                </div>
+                <div>
+                  <span>Lagna</span>
+                  <strong>{computed.lagna || "—"}</strong>
+                </div>
+              </div>
+              <div className="kundli-result-meta">
+                <p><strong>Dasha summary:</strong> {computed.dashaSummary ?? "Not returned by the engine for this chart."}</p>
+                <p>
+                  <strong>Engine:</strong> {computed.engine.engineSemanticVersion ?? "unknown"} · schema {computed.engine.schemaVersion ?? "unknown"}
+                </p>
+              </div>
+            </>
+          ) : (
+            <p className="muted-text">
+              Computed kundli values will appear here after generation. Raw birth inputs stay editable above.
+            </p>
+          )}
+        </section>
 
         <fieldset className="segmented-field">
           <legend>Mars Dosha</legend>
@@ -132,7 +381,7 @@ export function Step4Horoscope() {
           >
             Back
           </button>
-          <button className="button button--primary" type="submit" disabled={submitted && isInvalid}>
+          <button className="button button--primary" type="submit" disabled={submitted && (isInvalid || !computed)}>
             Next
           </button>
         </div>

@@ -1,4 +1,5 @@
 import type { FamilyDetails, HoroscopeDetails, PersonalDetails } from "../store/bioDataSlice";
+import { hasResolvedBirthPlace } from "./horoscope";
 
 export type ValidationErrors<T> = Partial<Record<keyof T, string>>;
 
@@ -86,14 +87,8 @@ export function validateHoroscopeDetails(values: HoroscopeDetails): ValidationEr
 
   if (!values.birthPlace.trim()) {
     errors.birthPlace = "Birth place is required";
-  }
-
-  if (!values.rashi) {
-    errors.rashi = "Select a rashi";
-  }
-
-  if (!values.nakshatra) {
-    errors.nakshatra = "Select a nakshatra";
+  } else if (!hasResolvedBirthPlace(values)) {
+    errors.birthPlace = "Search and select a matching birthplace before generating the kundli";
   }
 
   return errors;

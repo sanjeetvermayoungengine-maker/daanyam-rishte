@@ -7,6 +7,7 @@ type SharePermissionToggleProps = {
   label: string;
   description: string;
   checked: boolean;
+  disabled?: boolean;
   onChange: (id: PermissionKey, checked: boolean) => void;
 };
 
@@ -15,10 +16,11 @@ export function SharePermissionToggle({
   label,
   description,
   checked,
+  disabled = false,
   onChange
 }: SharePermissionToggleProps) {
   return (
-    <label className="permission-toggle">
+    <label className={disabled ? "permission-toggle permission-toggle--disabled" : "permission-toggle"}>
       <span className="permission-toggle__copy">
         <strong>{label}</strong>
         <small>{description}</small>
@@ -27,6 +29,7 @@ export function SharePermissionToggle({
         <input
           type="checkbox"
           checked={checked}
+          disabled={disabled}
           onChange={(event) => onChange(id, event.target.checked)}
         />
         <span className="permission-toggle__track" aria-hidden="true">

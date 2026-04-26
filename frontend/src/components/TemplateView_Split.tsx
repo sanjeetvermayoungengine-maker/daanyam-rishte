@@ -1,12 +1,13 @@
 import type { BioDataState } from "../store/bioDataSlice";
 import { formatDisplayDate, getAgeFromDob, getPrimaryPhoto } from "../utils/formHelpers";
+import { getHoroscopeFieldsForAccess, type HoroscopeAccessLevel } from "../utils/sharePermissions";
 
 type TemplateViewProps = {
   bioData: BioDataState;
   compact?: boolean;
   publicMode?: boolean;
   showPhotos?: boolean;
-  showHoroscope?: boolean;
+  horoscopeAccess?: HoroscopeAccessLevel;
   showContact?: boolean;
 };
 
@@ -96,11 +97,12 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 export function TemplateViewSplit({
   bioData,
   showPhotos = true,
-  showHoroscope = true,
+  horoscopeAccess = "detailed",
 }: TemplateViewProps) {
   const primaryPhoto = getPrimaryPhoto(bioData);
   const age = getAgeFromDob(bioData.personalDetails.dob);
   const siblings = bioData.family.siblings.filter((s) => s.name || s.occupation);
+  const horoscopeFields = getHoroscopeFieldsForAccess(bioData.horoscope, horoscopeAccess);
 
   return (
     <article
@@ -301,9 +303,9 @@ export function TemplateViewSplit({
         </div>
 
         {/* Horoscope */}
-        {showHoroscope && (
+        {horoscopeFields.length > 0 && (
           <div style={{ display: "grid", gap: 8 }}>
-            <SectionLabel>Horoscope</SectionLabel>
+            <SectionLabel>{horoscopeAccess === "detailed" ? "Detailed Kundli" : "Horoscope Summary"}</SectionLabel>
             <div
               style={{
                 display: "grid",
@@ -311,12 +313,9 @@ export function TemplateViewSplit({
                 gap: "8px 16px",
               }}
             >
-              <Field label="Rashi" value={bioData.horoscope.rashi} />
-              <Field label="Nakshatra" value={bioData.horoscope.nakshatra} />
-              <Field label="Gotra" value={bioData.horoscope.gotra} />
-              <Field label="Mars Dosha" value={bioData.horoscope.marsDosha} />
-              <Field label="Birth Time" value={bioData.horoscope.birthTime} />
-              <Field label="Birth Place" value={bioData.horoscope.birthPlace} />
+              {horoscopeFields.map((field) => (
+                <Field key={field.label} label={field.label} value={field.value} />
+              ))}
             </div>
           </div>
         )}
