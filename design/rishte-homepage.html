@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rishte by Daanyam — Every रिश्ता begins with trust</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:        #F7F0E3;
+      --cream-card:   #FFFFFF;
+      --navy:         #1A2744;
+      --gold:         #C49A10;
+      --gold-soft:    rgba(196,154,16,0.18);
+      --gold-border:  rgba(196,154,16,0.35);
+      --maroon:       #9B1C1C;
+      --maroon-hover: #7C1515;
+      --text-dark:    #1A2744;
+      --text-mid:     #4A5570;
+      --text-light:   #757F99;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+      font-size: 15px;
+    }
+
+    .deva { font-family: 'Noto Serif Devanagari', serif; }
+    .serif { font-family: 'Playfair Display', serif; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 24px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--maroon);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--maroon-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(155,28,28,0.28); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-dark);
+      border: 1.5px solid rgba(26,39,68,0.35);
+    }
+    .btn-outline:hover { background: rgba(26,39,68,0.05); }
+
+    /* ── SECTION DOTS DIVIDER ── */
+    .dots-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .dots-line {
+      width: 56px;
+      height: 1px;
+      background: var(--gold-border);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-fill  { background: var(--gold); }
+    .dot-empty { border: 1.5px solid var(--gold); background: transparent; }
+
+    /* ═══════════════════════════
+       NAVBAR
+    ═══════════════════════════ */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--cream);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px;
+      height: 62px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    .logo-wordmark {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+    .logo-rishte {
+      font-family: 'Noto Serif Devanagari', serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.2px;
+    }
+    .logo-by {
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    /* ═══════════════════════════
+       HERO
+    ═══════════════════════════ */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 48px;
+      min-height: calc(100vh - 62px);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 52px 80px 60px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 18px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--gold-border);
+      font-size: 13px;
+      color: var(--text-mid);
+      margin-bottom: 30px;
+    }
+    .hero-badge .deva { font-weight: 600; color: var(--text-dark); }
+
+    .hero-h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 60px;
+      font-weight: 700;
+      line-height: 1.13;
+      color: var(--text-dark);
+      margin-bottom: 22px;
+    }
+    .hero-h1 .rista {
+      font-family: 'Noto Serif Devanagari', serif;
+      color: var(--gold);
+      font-style: italic;
+    }
+
+    .hero-body {
+      font-size: 17px;
+      line-height: 1.75;
+      color: var(--text-mid);
+      max-width: 420px;
+      margin-bottom: 38px;
+    }
+    .hero-body .vivah {
+      font-family: 'Noto Serif Devanagari', serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 1px;
+    }
+    .hero-body .parivar {
+      font-family: 'Noto Serif Devanagari', serif;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .hero-trust {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .trust-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--text-mid);
+    }
+    .trust-chip .check { color: var(--gold); font-size: 13px; }
+
+    /* ARCH ILLUSTRATION */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .arch {
+      width: 370px;
+      height: 470px;
+      border: 1.5px solid var(--gold);
+      border-radius: 185px 185px 18px 18px;
+      background: linear-gradient(170deg, #FDF5DC 0%, #F7E8B0 60%, #F0D890 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 36px;
+      position: relative;
+      box-shadow:
+        inset 0 0 50px rgba(196,154,16,0.06),
+        0 8px 32px rgba(0,0,0,0.06);
+    }
+
+    /* Subtle diagonal texture lines */
+    .arch::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 185px 185px 18px 18px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 18px,
+        rgba(196,154,16,0.04) 18px,
+        rgba(196,154,16,0.04) 19px
+      );
+    }
+
+    .arch-placeholder {
+      position: relative;
+      text-align: center;
+      font-style: italic;
+      font-size: 12px;
+      color: rgba(160,120,10,0.45);
+      line-height: 2;
+      letter-spacing: 0.2px;
+    }
+
+    /* ═══════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════ */
+    .section-how {
+      background: var(--cream);
+      padding: 96px 52px;
+    }
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-light);
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 14px; }
+
+    .step-card {
+      background: var(--cream-card);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 16px;
+      padding: 22px 26px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .step-icon-wrap {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-label {
+      font-family: 'Noto Serif Devanagari', serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.3px;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+    .step-desc {
+      font-size: 13.5px;
+      color: var(--text-light);
+      line-height: 1.65;
+    }
+
+    .step-num {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Noto Serif Devanagari', serif;
+      font-size: 52px;
+      font-weight: 700;
+      color: rgba(196,154,16,0.07);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Traditions panel */
+    .traditions { display: flex; flex-direction: column; gap: 14px; }
+
+    .traditions-label {
+      text-align: center;
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+
+    .tradition-card {
+      background: var(--cream-card);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .tradition-symbol { font-size: 34px; margin-bottom: 12px; line-height: 1; }
+    .tradition-name { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .tradition-tags { font-size: 13px; color: var(--text-light); line-height: 1.65; }
+
+    .coming-soon {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 6px;
+    }
+
+    /* ═══════════════════════════
+       BUILT ON TRUST
+    ═══════════════════════════ */
+    .section-trust {
+      background: var(--navy);
+      padding: 96px 52px;
+    }
+
+    .trust-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .trust-sub {
+      text-align: center;
+      font-size: 15px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 60px;
+    }
+    .trust-sub .deva { color: rgba(255,255,255,0.8); font-family: 'Noto Serif Devanagari', serif; }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+    .trust-item {}
+    .trust-item-icon { color: var(--gold); margin-bottom: 16px; }
+    .trust-item-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+    .trust-item-desc {
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.75;
+    }
+    .trust-item-desc .deva { color: rgba(255,255,255,0.78); font-family: 'Noto Serif Devanagari', serif; }
+
+    /* ═══════════════════════════
+       FOOTER
+    ═══════════════════════════ */
+    footer {
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 26px 52px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .footer-wordmark { display: flex; align-items: baseline; gap: 8px; }
+    .footer-rishte {
+      font-family: 'Noto Serif Devanagari', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .footer-by { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    .footer-nav { display: flex; gap: 32px; }
+    .footer-nav a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.18s; }
+    .footer-nav a:hover { color: #fff; }
+
+    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav>
+  <a href="/" class="logo">
+    <!-- Sparrow icon -->
+    <svg class="logo-icon" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 3C11.5 3 8 5.8 8 9.5C8 12.2 9.8 14 11.5 15L7.5 23H11L13 19.2C13.6 19.4 14.3 19.5 15 19.5C18.6 19.5 21.5 16.5 21.5 13C21.5 9.5 18.8 5.5 15 3Z" fill="#C49A10" opacity="0.85"/>
+      <path d="M9.5 11C9.5 11 7.5 12.8 6.5 14.5" stroke="#C49A10" stroke-width="1.4" stroke-linecap="round" opacity="0.7"/>
+      <path d="M8 9.5C8 9.5 6 10.5 5 12" stroke="#C49A10" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+    </svg>
+    <div class="logo-wordmark">
+      <span class="logo-rishte">रिश्ते</span>
+      <span class="logo-by">BY DAANYAM</span>
+    </div>
+  </a>
+  <a href="#" class="btn btn-primary">Create My Biodata</a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section style="background: var(--cream);">
+  <div class="hero">
+    <!-- Left: copy -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>🪔</span>
+        <span>Made for Hindu &amp; Jain <span class="deva">परिवार</span></span>
+      </div>
+
+      <h1 class="hero-h1">
+        Every <span class="rista">रिश्ता</span><br>
+        begins with trust.
+      </h1>
+
+      <p class="hero-body">
+        Create a beautiful <span class="vivah deva">विवाह</span> biodata for your child.
+        Share it privately with the right <span class="parivar deva">परिवार</span> —
+        on your terms, not a platform's.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary">Create My Biodata</a>
+        <a href="#" class="btn btn-outline">See a Sample ↓</a>
+      </div>
+
+      <div class="hero-trust">
+        <div class="trust-chip"><span class="check">✓</span> Free to start</div>
+        <div class="trust-chip"><span class="check">✓</span> No ads or spam</div>
+        <div class="trust-chip"><span class="check">✓</span> Your privacy, always</div>
+      </div>
+    </div>
+
+    <!-- Right: illustration arch placeholder -->
+    <div class="hero-visual">
+      <div class="arch">
+        <div class="arch-placeholder">
+          Watercolour illustration<br><br>
+          Parents on a decorated jhoola<br>
+          reviewing a biodata scroll<br><br>
+          Marigolds · Afternoon light<br>
+          Traditional attire · Soft brushwork
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="section-how">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="dots-row">
+        <div class="dots-line"></div>
+        <div class="dot dot-empty"></div>
+        <div class="dot dot-fill"></div>
+        <div class="dot dot-empty"></div>
+        <div class="dots-line"></div>
+      </div>
+      <h2 class="section-title">How it works</h2>
+      <p class="section-sub">From your first detail to a shared biodata — three steps.</p>
+    </div>
+
+    <div class="how-grid">
+      <!-- Steps -->
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A2744" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-label">भरें</div>
+            <div class="step-title">Fill your details</div>
+            <div class="step-desc">A guided 5-step form covering personal details, family, education, and horoscope. Takes about 15 minutes.</div>
+          </div>
+          <div class="step-num">०१</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-label">सजाएं</div>
+            <div class="step-title">Choose your style</div>
+            <div class="step-desc">Pick from 4 beautifully designed templates — Traditional, Modern, Premium, and Split layout.</div>
+          </div>
+          <div class="step-num">०२</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A2744" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-label">भेजें</div>
+            <div class="step-title">Share privately</div>
+            <div class="step-desc">Create personal share links. Decide which sections each recipient sees. Revoke access anytime.</div>
+          </div>
+          <div class="step-num">०३</div>
+        </div>
+      </div>
+
+      <!-- Traditions -->
+      <div class="traditions">
+        <div class="traditions-label">Purpose-built for your traditions</div>
+
+        <div class="tradition-card">
+          <div class="tradition-symbol" style="color:#BF4A1A;">ॐ</div>
+          <div class="tradition-name">Hindu</div>
+          <div class="tradition-tags">Gotra · Nakshatra · Manglik · Rashi</div>
+        </div>
+
+        <div class="tradition-card">
+          <div class="tradition-symbol" style="color:#2B7A6B;">☸</div>
+          <div class="tradition-name">Jain</div>
+          <div class="tradition-tags">Sect · Samaj · Pravachan · Gotra</div>
+        </div>
+
+        <div class="coming-soon">Sikh, Muslim &amp; Christian communities coming soon</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUILT ON TRUST ═══ -->
+<section class="section-trust">
+  <div class="section-inner">
+    <div class="dots-row">
+      <div class="dots-line" style="background: rgba(196,154,16,0.2);"></div>
+      <div class="dot dot-empty"></div>
+      <div class="dot dot-fill"></div>
+      <div class="dot dot-empty"></div>
+      <div class="dots-line" style="background: rgba(196,154,16,0.2);"></div>
+    </div>
+    <h2 class="trust-title">Built on trust</h2>
+    <p class="trust-sub">
+      <span class="deva">शादी</span> is one of life's biggest steps. We take that seriously.
+    </p>
+
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="trust-item-title">You control who sees what</div>
+        <div class="trust-item-desc">Share only the sections each recipient needs. Horoscope, photo, contact — all separate.</div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="trust-item-title">Verified profiles</div>
+        <div class="trust-item-desc">Real families. No fake profiles, no bots, no automated matches from our side.</div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <line x1="8" y1="14" x2="16" y2="14" stroke-dasharray="3 2"/>
+          </svg>
+        </div>
+        <div class="trust-item-title">No ads, ever</div>
+        <div class="trust-item-desc">Your <span class="deva">बायोडेटा</span> is not a product. We never sell your family's data to anyone.</div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div class="trust-item-title">Built for your values</div>
+        <div class="trust-item-desc">Designed around Hindu &amp; Jain traditions — not adapted from a generic Western platform.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <a href="/" class="footer-logo">
+    <svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 3C11.5 3 8 5.8 8 9.5C8 12.2 9.8 14 11.5 15L7.5 23H11L13 19.2C13.6 19.4 14.3 19.5 15 19.5C18.6 19.5 21.5 16.5 21.5 13C21.5 9.5 18.8 5.5 15 3Z" fill="#C49A10" opacity="0.7"/>
+    </svg>
+    <div class="footer-wordmark">
+      <span class="footer-rishte">रिश्ते</span>
+      <span class="footer-by">by Daanyam</span>
+    </div>
+  </a>
+
+  <nav class="footer-nav">
+    <a href="#">About</a>
+    <a href="#">Privacy</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <div class="footer-copy">© 2025 Daanyam</div>
+</footer>
+
+</body>
+</html>

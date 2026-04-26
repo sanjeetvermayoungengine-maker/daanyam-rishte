@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rishte by Daanyam — Every रिश्ता begins with trust</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:       #F7F0E3;
+      --cream-deep:  #EDE6D3;
+      --cream-card:  #FFFFFF;
+      --navy:        #1A2744;
+      --gold:        #C49A10;
+      --gold-soft:   rgba(196,154,16,0.15);
+      --gold-border: rgba(196,154,16,0.32);
+      --maroon:      #9B1C1C;
+      --maroon-h:    #7C1515;
+      --text-dark:   #1A2744;
+      --text-mid:    #4A5570;
+      --text-light:  #757F99;
+      --transition:  0.22s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+    }
+    .deva { font-family: 'Noto Serif Devanagari', serif; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 11px 22px; border-radius: 9px;
+      font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all var(--transition);
+      text-decoration: none; border: none; white-space: nowrap;
+    }
+    .btn-primary  { background: var(--maroon); color: #fff; }
+    .btn-primary:hover { background: var(--maroon-h); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(155,28,28,0.28); }
+    .btn-outline  { background: transparent; color: var(--text-dark); border: 1.5px solid rgba(26,39,68,0.32); }
+    .btn-outline:hover { background: rgba(26,39,68,0.05); }
+    .btn-gold     { background: var(--gold); color: #fff; }
+    .btn-gold:hover { background: #A8840D; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(196,154,16,0.32); }
+
+    /* ── DOTS DIVIDER ── */
+    .dots-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px; }
+    .dots-line { width: 54px; height: 1px; background: var(--gold-border); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-fill  { background: var(--gold); }
+    .dot-empty { border: 1.5px solid var(--gold); }
+
+    /* ═══════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════ */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--cream);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px; height: 62px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-rishte { font-family: 'Noto Serif Devanagari', serif; font-size: 19px; font-weight: 700; color: var(--text-dark); }
+    .logo-by { font-size: 8.5px; font-weight: 600; letter-spacing: 1.6px; color: var(--text-light); text-transform: uppercase; }
+
+    /* ═══════════════════════════════════
+       AUDIENCE TOGGLE
+    ═══════════════════════════════════ */
+    .audience-toggle {
+      display: inline-flex;
+      background: rgba(26,39,68,0.06);
+      border-radius: 100px;
+      padding: 3px;
+      gap: 2px;
+      margin-bottom: 28px;
+    }
+    .aud-btn {
+      padding: 7px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-mid);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--transition);
+    }
+    .aud-btn.active {
+      background: var(--cream-card);
+      color: var(--text-dark);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .aud-btn[data-aud="matchmakers"].active {
+      background: var(--navy);
+      color: var(--gold);
+    }
+
+    /* ═══════════════════════════════════
+       HERO
+    ═══════════════════════════════════ */
+    .hero-wrap { background: var(--cream); }
+    .hero {
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 48px;
+      min-height: calc(100vh - 62px);
+      max-width: 1200px; margin: 0 auto;
+      padding: 72px 52px 72px 60px;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 16px; border-radius: 100px;
+      background: rgba(255,255,255,0.75); border: 1px solid var(--gold-border);
+      font-size: 13px; color: var(--text-mid);
+      margin-bottom: 22px;
+      transition: all var(--transition);
+    }
+    .hero-badge .deva { font-weight: 600; color: var(--text-dark); }
+
+    .hero-h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 58px; font-weight: 700; line-height: 1.13;
+      color: var(--text-dark); margin-bottom: 20px;
+    }
+    .hero-h1 .rista { font-family: 'Noto Serif Devanagari', serif; color: var(--gold); font-style: italic; }
+
+    .hero-body {
+      font-size: 17px; line-height: 1.75; color: var(--text-mid);
+      max-width: 420px; margin-bottom: 36px;
+      transition: opacity 0.18s ease;
+    }
+    .hero-body .vivah  { font-family: 'Noto Serif Devanagari', serif; font-weight: 600; color: var(--text-dark); border-bottom: 2px solid var(--gold); padding-bottom: 1px; }
+    .hero-body .parivar { font-family: 'Noto Serif Devanagari', serif; font-weight: 600; color: var(--text-dark); }
+
+    .hero-actions { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+
+    .hero-trust { display: flex; flex-wrap: wrap; gap: 18px; }
+    .trust-chip { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-mid); }
+    .trust-chip .check { color: var(--gold); }
+
+    /* ─── ARCH + BIODATA PREVIEW ─── */
+    .hero-visual { display: flex; justify-content: center; align-items: center; }
+
+    .arch {
+      width: 360px; height: 460px;
+      border: 1.5px solid var(--gold);
+      border-radius: 180px 180px 18px 18px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(170deg, #FDF5DC 0%, #F5E5A8 100%);
+      box-shadow: 0 8px 36px rgba(0,0,0,0.08);
+    }
+    .arch::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(196,154,16,0.04) 20px, rgba(196,154,16,0.04) 21px);
+      z-index: 0;
+    }
+
+    /* Biodata card inside the arch */
+    .biodata-preview {
+      position: absolute;
+      bottom: -20px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+      width: 270px;
+      background: #fff;
+      border-radius: 12px 12px 0 0;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+      overflow: hidden;
+      z-index: 1;
+    }
+    .bp-top-bar {
+      background: var(--maroon); height: 6px;
+    }
+    .bp-header {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid #f0ebe0;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .bp-photo {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, #f0e0c0 0%, #e0c890 100%);
+      border: 2px solid var(--gold-border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: rgba(196,154,16,0.4);
+    }
+    .bp-name-deva { font-family: 'Noto Serif Devanagari', serif; font-size: 14px; font-weight: 700; color: var(--text-dark); }
+    .bp-name-en { font-size: 11px; color: var(--text-mid); margin-top: 1px; }
+    .bp-age { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .bp-body { padding: 12px 18px; }
+    .bp-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 5px 0; border-bottom: 1px solid #f5f0ea;
+      font-size: 11px;
+    }
+    .bp-row:last-child { border-bottom: none; }
+    .bp-row-label { color: var(--text-light); font-weight: 500; }
+    .bp-row-val   { color: var(--text-dark); font-weight: 500; text-align: right; max-width: 150px; }
+    .bp-footer-card {
+      padding: 8px 18px;
+      background: #fafaf7;
+      border-top: 1px solid #f0ebe0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .bp-link { font-size: 10px; color: var(--text-light); }
+    .bp-badge { font-size: 9px; background: #e8f4f0; color: #2B7A6B; padding: 3px 8px; border-radius: 100px; font-weight: 600; }
+
+    /* ═══════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════ */
+    .section-how { background: var(--cream); padding: 96px 52px; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-head { text-align: center; margin-bottom: 54px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .section-sub { font-size: 15px; color: var(--text-light); }
+
+    .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: start; }
+
+    .steps { display: flex; flex-direction: column; gap: 14px; }
+    .step-card {
+      background: var(--cream-card); border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 16px; padding: 22px 26px;
+      display: flex; align-items: flex-start; gap: 16px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .step-icon { width: 34px; height: 34px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .step-label { font-family: 'Noto Serif Devanagari', serif; font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 3px; }
+    .step-title { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 5px; }
+    .step-desc { font-size: 13.5px; color: var(--text-light); line-height: 1.65; }
+    .step-num { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-family: 'Noto Serif Devanagari', serif; font-size: 52px; font-weight: 700; color: rgba(196,154,16,0.07); line-height: 1; user-select: none; }
+
+    .traditions { display: flex; flex-direction: column; gap: 14px; }
+    .traditions-label { text-align: center; font-size: 13px; font-style: italic; color: var(--text-light); margin-bottom: 4px; }
+    .tradition-card { background: var(--cream-card); border: 1px solid rgba(0,0,0,0.05); border-radius: 16px; padding: 26px 24px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .tradition-symbol { font-size: 34px; margin-bottom: 12px; line-height: 1; }
+    .tradition-name { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+    .tradition-tags { font-size: 13px; color: var(--text-light); line-height: 1.65; }
+    .coming-soon { text-align: center; font-size: 12px; color: var(--text-light); margin-top: 6px; }
+
+    /* ═══════════════════════════════════
+       MATCHMAKER SECTION
+    ═══════════════════════════════════ */
+    .section-matchmaker {
+      background: var(--navy);
+      padding: 96px 52px;
+    }
+    .matchmaker-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: center;
+    }
+
+    .mm-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 100px;
+      border: 1px solid rgba(196,154,16,0.35);
+      font-size: 12px; font-weight: 600; color: var(--gold);
+      letter-spacing: 0.8px; text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .mm-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px; font-weight: 700; line-height: 1.18;
+      color: #fff; margin-bottom: 16px;
+    }
+    .mm-title em { font-style: italic; color: var(--gold); }
+    .mm-body { font-size: 16px; line-height: 1.75; color: rgba(255,255,255,0.6); margin-bottom: 32px; max-width: 400px; }
+
+    .mm-features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+    .mm-feature { display: flex; align-items: flex-start; gap: 12px; }
+    .mm-feature-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(196,154,16,0.12); border: 1px solid rgba(196,154,16,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .mm-feature-text { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    .mm-feature-text strong { color: #fff; font-weight: 600; }
+
+    /* Client list mockup */
+    .client-mockup {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .cm-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cm-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .cm-add { font-size: 12px; color: var(--gold); cursor: pointer; }
+    .cm-stat { padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; gap: 24px; }
+    .cm-stat-item { }
+    .cm-stat-num { font-size: 22px; font-weight: 700; color: var(--gold); line-height: 1; }
+    .cm-stat-label { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+    .client-row {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .client-row:last-child { border-bottom: none; }
+    .client-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .ca-s { background: rgba(196,154,16,0.2); color: var(--gold); }
+    .ca-m { background: rgba(43,122,107,0.2); color: #4ECBA8; }
+    .ca-g { background: rgba(155,28,28,0.2); color: #E07070; }
+    .ca-v { background: rgba(100,100,200,0.2); color: #9090E0; }
+    .client-info { flex: 1; min-width: 0; }
+    .client-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .client-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .client-badge { padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .badge-active   { background: rgba(43,122,107,0.2); color: #4ECBA8; }
+    .badge-draft    { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.4); }
+    .badge-viewed   { background: rgba(196,154,16,0.15); color: var(--gold); }
+
+    /* ═══════════════════════════════════
+       TRUST SECTION
+    ═══════════════════════════════════ */
+    .section-trust { background: var(--cream-deep); padding: 96px 52px; }
+    .trust-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--text-dark); text-align: center; margin-bottom: 8px; }
+    .trust-sub { text-align: center; font-size: 15px; color: var(--text-light); margin-bottom: 60px; }
+    .trust-sub .deva { font-family: 'Noto Serif Devanagari', serif; color: var(--text-dark); }
+
+    .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px; }
+    .trust-item { }
+    .trust-item-icon { color: var(--gold); margin-bottom: 14px; }
+    .trust-item-title { font-size: 15px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; line-height: 1.35; }
+    .trust-item-desc { font-size: 13.5px; color: var(--text-mid); line-height: 1.7; }
+    .trust-item-desc .deva { font-family: 'Noto Serif Devanagari', serif; }
+
+    .trust-numbers {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0; margin: 0 auto 56px; max-width: 600px;
+      border: 1px solid rgba(196,154,16,0.22); border-radius: 16px; overflow: hidden;
+    }
+    .trust-num-item {
+      padding: 24px 20px; text-align: center;
+      border-right: 1px solid rgba(196,154,16,0.18);
+    }
+    .trust-num-item:last-child { border-right: none; }
+    .trust-num { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+    .trust-num-label { font-size: 12px; color: var(--text-light); margin-top: 6px; }
+
+    /* ═══════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════ */
+    footer {
+      background: var(--navy);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 26px 52px;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .footer-rishte { font-family: 'Noto Serif Devanagari', serif; font-size: 16px; font-weight: 700; color: #fff; }
+    .footer-by { font-size: 12px; color: rgba(255,255,255,0.38); margin-left: 8px; }
+    .footer-nav { display: flex; gap: 28px; }
+    .footer-nav a { font-size: 13px; color: rgba(255,255,255,0.48); text-decoration: none; transition: color var(--transition); }
+    .footer-nav a:hover { color: #fff; }
+    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+    /* Fade transition for hero content */
+    .hero-dynamic { transition: opacity 0.16s ease; }
+    .hero-dynamic.fade { opacity: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav>
+  <a href="/" class="logo">
+    <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
+      <path d="M15 3C11.5 3 8 5.8 8 9.5C8 12.2 9.8 14 11.5 15L7.5 23H11L13 19.2C13.6 19.4 14.3 19.5 15 19.5C18.6 19.5 21.5 16.5 21.5 13C21.5 9.5 18.8 5.5 15 3Z" fill="#C49A10" opacity="0.85"/>
+      <path d="M9.5 11C9.5 11 7.5 12.8 6.5 14.5" stroke="#C49A10" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+    <div>
+      <div class="logo-rishte">रिश्ते</div>
+      <div class="logo-by">BY DAANYAM</div>
+    </div>
+  </a>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <a href="#matchmakers" style="font-size:13px; color:var(--text-mid); text-decoration:none;">For Matchmakers</a>
+    <a href="#" class="btn btn-primary">Create My Biodata</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero-wrap">
+  <div class="hero">
+    <!-- Left: copy -->
+    <div class="hero-content">
+
+      <!-- Audience Toggle -->
+      <div class="audience-toggle">
+        <button class="aud-btn active" data-aud="families">For Families</button>
+        <button class="aud-btn" data-aud="you">For You</button>
+        <button class="aud-btn" data-aud="matchmakers">For Matchmakers</button>
+      </div>
+
+      <!-- Dynamic content -->
+      <div class="hero-dynamic">
+        <div class="hero-badge" id="hero-badge">
+          <span id="badge-icon">🪔</span>
+          <span id="badge-text">Made for Hindu &amp; Jain <span class="deva">परिवार</span></span>
+        </div>
+
+        <h1 class="hero-h1">
+          Every <span class="rista">रिश्ता</span><br>
+          begins with trust.
+        </h1>
+
+        <p class="hero-body" id="hero-body">
+          Create a beautiful <span class="vivah deva">विवाह</span> biodata for your child.
+          Share it privately with the right <span class="parivar deva">परिवार</span> —
+          on your terms, not a platform's.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary" id="cta-primary">Create My Biodata</a>
+          <a href="#" class="btn btn-outline" id="cta-secondary">See a Sample ↓</a>
+        </div>
+
+        <div class="hero-trust" id="hero-trust">
+          <div class="trust-chip"><span class="check">✓</span> Free to start</div>
+          <div class="trust-chip"><span class="check">✓</span> No ads or spam</div>
+          <div class="trust-chip"><span class="check">✓</span> Your privacy, always</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: arch with biodata preview -->
+    <div class="hero-visual">
+      <div class="arch">
+        <div class="biodata-preview">
+          <div class="bp-top-bar"></div>
+          <div class="bp-header">
+            <div class="bp-photo">🌸</div>
+            <div>
+              <div class="bp-name-deva">प्रिया शर्मा</div>
+              <div class="bp-name-en">Priya Sharma</div>
+              <div class="bp-age">25 yrs · Mumbai</div>
+            </div>
+          </div>
+          <div class="bp-body">
+            <div class="bp-row"><span class="bp-row-label">Education</span><span class="bp-row-val">B.Tech, IIT Delhi</span></div>
+            <div class="bp-row"><span class="bp-row-label">Profession</span><span class="bp-row-val">Software Engineer</span></div>
+            <div class="bp-row"><span class="bp-row-label">Gotra</span><span class="bp-row-val">Bharadwaj</span></div>
+            <div class="bp-row"><span class="bp-row-label">Rashi · Manglik</span><span class="bp-row-val">Kanya · No</span></div>
+            <div class="bp-row"><span class="bp-row-label">Father</span><span class="bp-row-val">Rajesh Sharma (CA)</span></div>
+          </div>
+          <div class="bp-footer-card">
+            <span class="bp-link">🔒 Private link · Expires May 5</span>
+            <span class="bp-badge">● Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="section-how">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="dots-row">
+        <div class="dots-line"></div>
+        <div class="dot dot-empty"></div>
+        <div class="dot dot-fill"></div>
+        <div class="dot dot-empty"></div>
+        <div class="dots-line"></div>
+      </div>
+      <h2 class="section-title">How it works</h2>
+      <p class="section-sub">From your first detail to a shared biodata — three steps.</p>
+    </div>
+
+    <div class="how-grid">
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A2744" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div>
+            <div class="step-label">भरें</div>
+            <div class="step-title">Fill your details</div>
+            <div class="step-desc">A guided 5-step form covering personal details, family, education, and horoscope. Takes about 15 minutes.</div>
+          </div>
+          <div class="step-num">०१</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div>
+            <div class="step-label">सजाएं</div>
+            <div class="step-title">Choose your style</div>
+            <div class="step-desc">Pick from 4 beautifully designed templates — Traditional, Modern, Premium, and Split layout.</div>
+          </div>
+          <div class="step-num">०२</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A2744" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+          <div>
+            <div class="step-label">भेजें</div>
+            <div class="step-title">Share privately</div>
+            <div class="step-desc">Create personal share links. Decide which sections each recipient sees. Revoke access anytime.</div>
+          </div>
+          <div class="step-num">०३</div>
+        </div>
+      </div>
+
+      <div class="traditions">
+        <div class="traditions-label">Purpose-built for your traditions</div>
+        <div class="tradition-card">
+          <div class="tradition-symbol" style="color:#BF4A1A;">ॐ</div>
+          <div class="tradition-name">Hindu</div>
+          <div class="tradition-tags">Gotra · Nakshatra · Manglik · Rashi</div>
+        </div>
+        <div class="tradition-card">
+          <div class="tradition-symbol" style="color:#2B7A6B;">☸</div>
+          <div class="tradition-name">Jain</div>
+          <div class="tradition-tags">Sect · Samaj · Pravachan · Gotra</div>
+        </div>
+        <div class="coming-soon">Sikh, Muslim &amp; Christian communities coming soon</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MATCHMAKER SECTION ═══ -->
+<section class="section-matchmaker" id="matchmakers">
+  <div class="section-inner">
+    <div class="matchmaker-grid">
+
+      <!-- Left: copy -->
+      <div>
+        <div class="mm-eyebrow">🗂 For Matchmakers</div>
+        <h2 class="mm-title">Your practice deserves<br><em>professional tools.</em></h2>
+        <p class="mm-body">
+          If you're managing 50–100 families at a time, a simple biodata form isn't enough. Rishte's matchmaker workspace gives you a full client management system — built around how you actually work.
+        </p>
+
+        <div class="mm-features">
+          <div class="mm-feature">
+            <div class="mm-feature-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="mm-feature-text"><strong>Unlimited client biodatas</strong> — no per-family charge, no caps</div>
+          </div>
+          <div class="mm-feature">
+            <div class="mm-feature-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            </div>
+            <div class="mm-feature-text"><strong>Client folders</strong> — organize every family, search instantly</div>
+          </div>
+          <div class="mm-feature">
+            <div class="mm-feature-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="mm-feature-text"><strong>Reusable templates</strong> — create once, apply to similar profiles</div>
+          </div>
+          <div class="mm-feature">
+            <div class="mm-feature-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="mm-feature-text"><strong>View tracking</strong> — see which families opened which profiles</div>
+          </div>
+          <div class="mm-feature">
+            <div class="mm-feature-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div class="mm-feature-text"><strong>Per-link access control</strong> — revoke any share link, anytime</div>
+          </div>
+        </div>
+
+        <a href="#" class="btn btn-gold">Explore Matchmaker Workspace →</a>
+      </div>
+
+      <!-- Right: client list mockup -->
+      <div class="client-mockup">
+        <div class="cm-header">
+          <span class="cm-title">My Clients</span>
+          <span class="cm-add">+ Add Family</span>
+        </div>
+        <div class="cm-stat">
+          <div class="cm-stat-item"><div class="cm-stat-num">47</div><div class="cm-stat-label">Families managed</div></div>
+          <div class="cm-stat-item"><div class="cm-stat-num">12</div><div class="cm-stat-label">Active shares</div></div>
+          <div class="cm-stat-item"><div class="cm-stat-num">3</div><div class="cm-stat-label">Viewed this week</div></div>
+        </div>
+        <div class="client-row">
+          <div class="client-avatar ca-s">S</div>
+          <div class="client-info">
+            <div class="client-name">Sharma <span class="deva" style="font-size:13px;">परिवार</span></div>
+            <div class="client-meta">3 links · Last viewed Apr 20</div>
+          </div>
+          <div class="client-badge badge-active">● Active</div>
+        </div>
+        <div class="client-row">
+          <div class="client-avatar ca-m">M</div>
+          <div class="client-info">
+            <div class="client-name">Mehta <span class="deva" style="font-size:13px;">जी</span></div>
+            <div class="client-meta">1 link · Viewed Apr 18</div>
+          </div>
+          <div class="client-badge badge-viewed">● Viewed</div>
+        </div>
+        <div class="client-row">
+          <div class="client-avatar ca-g">G</div>
+          <div class="client-info">
+            <div class="client-name">Gupta <span class="deva" style="font-size:13px;">परिवार</span></div>
+            <div class="client-meta">Biodata incomplete</div>
+          </div>
+          <div class="client-badge badge-draft">Draft</div>
+        </div>
+        <div class="client-row">
+          <div class="client-avatar ca-v">V</div>
+          <div class="client-info">
+            <div class="client-name">Verma <span class="deva" style="font-size:13px;">परिवार</span></div>
+            <div class="client-meta">2 links · Last viewed Apr 22</div>
+          </div>
+          <div class="client-badge badge-active">● Active</div>
+        </div>
+        <div style="padding: 14px 20px; font-size:12px; color:rgba(255,255,255,0.3); text-align:center;">
+          View all 47 families →
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUILT ON TRUST ═══ -->
+<section class="section-trust">
+  <div class="section-inner">
+    <div class="dots-row">
+      <div class="dots-line"></div>
+      <div class="dot dot-empty"></div>
+      <div class="dot dot-fill"></div>
+      <div class="dot dot-empty"></div>
+      <div class="dots-line"></div>
+    </div>
+    <h2 class="trust-title">Built on trust</h2>
+    <p class="trust-sub"><span class="deva">शादी</span> is one of life's biggest steps. We take that seriously.</p>
+
+    <!-- Numbers -->
+    <div class="trust-numbers">
+      <div class="trust-num-item">
+        <div class="trust-num">2,400+</div>
+        <div class="trust-num-label">Biodatas created</div>
+      </div>
+      <div class="trust-num-item">
+        <div class="trust-num">180+</div>
+        <div class="trust-num-label">Matchmakers using Rishte</div>
+      </div>
+      <div class="trust-num-item">
+        <div class="trust-num">0</div>
+        <div class="trust-num-label">Ads. Ever.</div>
+      </div>
+    </div>
+
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="trust-item-title">You control who sees what</div>
+        <div class="trust-item-desc">Share only the sections each recipient needs. Horoscope, photo, contact — all separate links.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="trust-item-title">Verified profiles</div>
+        <div class="trust-item-desc">Real families. No fake profiles, no bots, no automated matching from our side.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="trust-item-title">No ads, ever</div>
+        <div class="trust-item-desc">Your <span class="deva">बायोडेटा</span> is not a product. We will never sell your family's data.</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C49A10" stroke-width="1.5" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="trust-item-title">Built for your values</div>
+        <div class="trust-item-desc">Designed around Hindu &amp; Jain traditions — not adapted from a generic Western platform.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <a href="/" class="footer-logo">
+    <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M15 3C11.5 3 8 5.8 8 9.5C8 12.2 9.8 14 11.5 15L7.5 23H11L13 19.2C13.6 19.4 14.3 19.5 15 19.5C18.6 19.5 21.5 16.5 21.5 13C21.5 9.5 18.8 5.5 15 3Z" fill="#C49A10" opacity="0.7"/></svg>
+    <span class="footer-rishte">रिश्ते</span>
+    <span class="footer-by">by Daanyam</span>
+  </a>
+  <nav class="footer-nav">
+    <a href="#">About</a>
+    <a href="#">Privacy</a>
+    <a href="#">Contact</a>
+  </nav>
+  <div class="footer-copy">© 2025 Daanyam</div>
+</footer>
+
+<script>
+  const content = {
+    families: {
+      badgeIcon: '🪔',
+      badgeText: 'Made for Hindu & Jain <span class="deva">परिवार</span>',
+      body: 'Create a beautiful <span class="vivah deva">विवाह</span> biodata for your child. Share it privately with the right <span class="parivar deva">परिवार</span> — on your terms, not a platform\'s.',
+      ctaPrimary: 'Create My Biodata',
+      ctaSecondary: 'See a Sample ↓',
+      trust: ['Free to start', 'No ads or spam', 'Your privacy, always']
+    },
+    you: {
+      badgeIcon: '✨',
+      badgeText: 'Your profile, your story',
+      body: 'Build a beautiful biodata that truly represents you. Control exactly who sees your photo, horoscope, and contact — share selectively, not publicly.',
+      ctaPrimary: 'Start My Biodata',
+      ctaSecondary: 'See a Sample ↓',
+      trust: ['Free to start', 'You decide who sees what', 'No creepy matching algorithms']
+    },
+    matchmakers: {
+      badgeIcon: '🗂',
+      badgeText: 'Professional matchmaker workspace',
+      body: 'Manage every client family in one place. Create beautiful biodatas in minutes, organize by family, and share with per-link access control — no extra cost per biodata.',
+      ctaPrimary: 'Explore Matchmaker Workspace →',
+      ctaSecondary: 'See how it works',
+      trust: ['Unlimited biodatas', 'Client folders & templates', 'View tracking per share link']
+    }
+  };
+
+  const btns = document.querySelectorAll('.aud-btn');
+  const heroDynamic = document.querySelector('.hero-dynamic');
+  const heroBody = document.getElementById('hero-body');
+  const ctaPrimary = document.getElementById('cta-primary');
+  const ctaSecondary = document.getElementById('cta-secondary');
+  const heroTrust = document.getElementById('hero-trust');
+  const badgeIcon = document.getElementById('badge-icon');
+  const badgeText = document.getElementById('badge-text');
+
+  function setAudience(aud) {
+    const d = content[aud];
+    heroDynamic.classList.add('fade');
+    setTimeout(() => {
+      badgeIcon.textContent = d.badgeIcon;
+      badgeText.innerHTML = d.badgeText;
+      heroBody.innerHTML = d.body;
+      ctaPrimary.textContent = d.ctaPrimary;
+      ctaSecondary.textContent = d.ctaSecondary;
+      heroTrust.innerHTML = d.trust.map(t =>
+        `<div class="trust-chip"><span class="check">✓</span> ${t}</div>`
+      ).join('');
+      heroDynamic.classList.remove('fade');
+    }, 160);
+
+    btns.forEach(b => b.classList.toggle('active', b.dataset.aud === aud));
+  }
+
+  btns.forEach(btn => btn.addEventListener('click', () => setAudience(btn.dataset.aud)));
+</script>
+</body>
+</html>

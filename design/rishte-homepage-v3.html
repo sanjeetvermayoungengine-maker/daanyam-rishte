@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rishte by Daanyam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+
+  /* ─────────────────────────────────────
+     DESIGN SYSTEM
+  ───────────────────────────────────── */
+  :root {
+    --ink:        #1C1916;
+    --ink-mid:    #4B4038;
+    --ink-soft:   #8A7B6F;
+    --ink-ghost:  #B8A898;
+    --cream:      #FAF8F2;
+    --parchment:  #F0E8D5;
+    --warm-dark:  #17130E;
+    --gold:       #B8860B;
+    --gold-lt:    #D4A820;
+    --gold-dim:   rgba(184,134,11,0.18);
+    --gold-line:  rgba(184,134,11,0.22);
+    --maroon:     #7A1418;
+    --maroon-h:   #5E0F12;
+    --teal:       #2A6B60;
+    --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+  }
+
+  .deva {
+    font-family: 'Noto Serif Devanagari', serif;
+  }
+
+  /* ── Scroll reveal ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal-d1 { transition-delay: 0.08s; }
+  .reveal-d2 { transition-delay: 0.16s; }
+  .reveal-d3 { transition-delay: 0.24s; }
+  .reveal-d4 { transition-delay: 0.32s; }
+
+  /* ── Shared ── */
+  .label {
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 2.2px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .section-rule {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 18px;
+  }
+  .section-rule-line { width: 48px; height: 0.5px; background: var(--gold-line); }
+  .section-rule-star { font-size: 9px; color: var(--gold); opacity: 0.7; }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(32px, 3.2vw, 44px);
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .section-sub {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin-top: 8px;
+  }
+
+  .section-head { text-align: center; margin-bottom: 60px; }
+
+  .inner { max-width: 1160px; margin: 0 auto; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 26px; border-radius: 6px;
+    font-size: 13.5px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; text-decoration: none; border: none;
+    transition: all 0.2s var(--ease); letter-spacing: 0.2px;
+  }
+  .btn-fill {
+    background: var(--maroon); color: #fff;
+  }
+  .btn-fill:hover {
+    background: var(--maroon-h);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(122,20,24,0.3);
+  }
+  .btn-ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid rgba(28,25,22,0.22);
+  }
+  .btn-ghost:hover { background: rgba(28,25,22,0.04); }
+  .btn-gold-fill {
+    background: var(--gold); color: #fff;
+  }
+  .btn-gold-fill:hover {
+    background: var(--gold-lt);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(184,134,11,0.3);
+  }
+
+
+  /* ─────────────────────────────────────
+     NAVBAR
+  ───────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    height: 58px;
+    background: var(--cream);
+    border-bottom: 0.5px solid rgba(184,134,11,0.18);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 52px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+  .logo-mark {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-text { display: flex; flex-direction: column; line-height: 1; }
+  .logo-rishte {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.3px;
+  }
+  .logo-by {
+    font-size: 8px; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--ink-ghost); margin-top: 2px;
+  }
+
+  .nav-right { display: flex; align-items: center; gap: 28px; }
+  .nav-link {
+    font-size: 13px; font-weight: 400; color: var(--ink-soft);
+    text-decoration: none; letter-spacing: 0.2px;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--ink); }
+
+
+  /* ─────────────────────────────────────
+     HERO
+  ───────────────────────────────────── */
+  .hero {
+    display: flex;
+    height: calc(100vh - 58px);
+    min-height: 620px;
+  }
+
+  /* Left panel */
+  .hero-left {
+    flex: 0 0 56%;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 0 64px 0 72px;
+  }
+
+  /* Right panel */
+  .hero-right {
+    flex: 0 0 44%;
+    background: var(--parchment);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  /* Subtle dot grid on right panel */
+  .hero-right::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(184,134,11,0.18) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+  /* Fade left edge of right panel into cream */
+  .hero-right::after {
+    content: '';
+    position: absolute; top: 0; left: 0; bottom: 0; width: 100px;
+    background: linear-gradient(to right, var(--cream), transparent);
+    pointer-events: none;
+  }
+
+  /* Eyebrow */
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 24px;
+    font-size: 12.5px; color: var(--ink-mid);
+    font-weight: 400;
+  }
+  .hero-eyebrow-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--gold); flex-shrink: 0;
+  }
+  .hero-eyebrow .deva { font-weight: 600; color: var(--ink); }
+
+  /* Headline */
+  .hero-h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(52px, 5.8vw, 80px);
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+  }
+  .hero-h1 .rista {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+  }
+
+  /* Hairline rule below headline */
+  .hero-rule {
+    width: 40px; height: 0.5px;
+    background: var(--gold-line); margin-bottom: 28px;
+  }
+
+  /* Audience toggle — elegant text tabs */
+  .toggle {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .tog {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400;
+    color: var(--ink-ghost);
+    background: none; border: none; cursor: pointer;
+    padding: 6px 0; margin-right: 20px;
+    position: relative;
+    transition: color 0.22s;
+    letter-spacing: 0.1px;
+  }
+  .tog::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 1.5px; background: var(--gold);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.28s var(--ease);
+  }
+  .tog.active { color: var(--ink); font-weight: 500; }
+  .tog.active::after { transform: scaleX(1); }
+  .tog-sep { color: var(--ink-ghost); font-size: 12px; margin-right: 20px; opacity: 0.5; }
+
+  /* Hero body copy */
+  .hero-body {
+    font-size: 17px; font-weight: 300; line-height: 1.85;
+    color: var(--ink-mid); max-width: 400px;
+    margin-bottom: 36px;
+    transition: opacity 0.18s ease;
+  }
+  .hero-body.fade { opacity: 0; }
+  .hero-body em {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-style: normal; font-weight: 500;
+    color: var(--ink);
+    border-bottom: 1.5px solid var(--gold);
+    padding-bottom: 1px;
+  }
+
+  .hero-actions { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; }
+
+  .hero-trust { display: flex; flex-wrap: wrap; gap: 18px; }
+  .trust-chip {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12.5px; font-weight: 300; color: var(--ink-soft);
+  }
+  .trust-chip svg { color: var(--gold); }
+
+  /* ── ARCH + BIODATA CARD ── */
+  .arch-wrap {
+    position: relative; z-index: 1;
+  }
+
+  .arch {
+    width: 300px; height: 500px;
+    border: 1px solid rgba(184,134,11,0.4);
+    border-radius: 150px 150px 16px 16px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(175deg, #FDF8EC 0%, #F5E8B8 100%);
+    box-shadow: 0 20px 60px rgba(28,25,22,0.12);
+  }
+
+  /* Premium biodata card inside arch */
+  .biodata-card {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%) rotate(-1.5deg);
+    width: 248px;
+    background: #FFFEF9;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 -8px 32px rgba(28,25,22,0.14);
+    overflow: hidden;
+  }
+
+  .bc-header-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--maroon) 0%, #B8360A 100%);
+  }
+  .bc-inner { padding: 16px 16px 0; }
+  .bc-top {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 0.5px solid #EDE5D4;
+    margin-bottom: 12px;
+  }
+  .bc-photo {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg, #EDD8A8, #D4B870);
+    border: 1.5px solid rgba(184,134,11,0.3);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .bc-name-deva {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    line-height: 1.2;
+  }
+  .bc-name-en { font-size: 10.5px; color: var(--ink-soft); margin-top: 2px; font-weight: 400; }
+  .bc-age { font-size: 10px; color: var(--ink-ghost); margin-top: 3px; }
+
+  .bc-field {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 0.5px solid #F2EAD8;
+    font-size: 10.5px;
+  }
+  .bc-field:last-child { border-bottom: none; }
+  .bc-field-k { color: var(--ink-ghost); font-weight: 400; }
+  .bc-field-v { color: var(--ink); font-weight: 500; text-align: right; }
+
+  .bc-footer {
+    margin-top: 12px;
+    padding: 9px 16px;
+    background: #FAF7F0;
+    border-top: 0.5px solid #EDE5D4;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .bc-link-text { font-size: 9.5px; color: var(--ink-ghost); }
+  .bc-status { font-size: 9.5px; color: var(--teal); font-weight: 600; }
+
+  /* Floating lock badge on the arch */
+  .arch-badge {
+    position: absolute;
+    top: 32px; right: -16px;
+    background: var(--ink);
+    color: #fff; border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 10.5px; font-weight: 500;
+    display: flex; align-items: center; gap: 5px;
+    box-shadow: 0 4px 12px rgba(28,25,22,0.25);
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .arch-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+
+
+  /* ─────────────────────────────────────
+     HOW IT WORKS
+  ───────────────────────────────────── */
+  .section-how {
+    background: var(--cream);
+    padding: 100px 52px;
+  }
+
+  .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+
+  /* Editorial step layout */
+  .step {
+    padding: 32px 0;
+    border-top: 0.5px solid rgba(184,134,11,0.2);
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 0 24px;
+    align-items: start;
+  }
+  .step:last-child { border-bottom: 0.5px solid rgba(184,134,11,0.2); }
+
+  .step-num-col { padding-top: 3px; }
+  .step-deva-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px; font-weight: 500; color: var(--gold);
+    letter-spacing: 1px; display: block; margin-bottom: 4px;
+  }
+  .step-icon-wrap {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .step-hindi { font-family: 'Noto Serif Devanagari', serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 0.5px; margin-bottom: 5px; }
+  .step-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 8px; line-height: 1.2; }
+  .step-desc { font-size: 14px; font-weight: 300; color: var(--ink-soft); line-height: 1.75; }
+
+  /* Traditions side */
+  .traditions-side { display: flex; flex-direction: column; gap: 0; }
+  .traditions-eyebrow { font-size: 10.5px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+
+  .trad-card {
+    padding: 28px;
+    border: 0.5px solid rgba(184,134,11,0.22);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    display: flex; align-items: flex-start; gap: 20px;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(4px);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .trad-card:hover { background: #fff; box-shadow: 0 4px 20px rgba(184,134,11,0.1); }
+  .trad-sym { font-size: 28px; line-height: 1; width: 36px; flex-shrink: 0; }
+  .trad-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--ink); margin-bottom: 4px; }
+  .trad-tags { font-size: 13px; font-weight: 300; color: var(--ink-soft); line-height: 1.7; }
+
+  .trad-coming { font-size: 12px; color: var(--ink-ghost); margin-top: 8px; text-align: center; }
+
+
+  /* ─────────────────────────────────────
+     MATCHMAKER
+  ───────────────────────────────────── */
+  .section-mm {
+    background: var(--warm-dark);
+    padding: 100px 52px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Subtle warm grid pattern */
+  .section-mm::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(184,134,11,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,134,11,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  /* Top gold accent line */
+  .section-mm::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(184,134,11,0.4), transparent);
+  }
+
+  .mm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; position: relative; z-index: 1; }
+
+  .mm-label { font-size: 10.5px; font-weight: 500; letter-spacing: 2.2px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+
+  .mm-h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 3.8vw, 52px);
+    font-weight: 300; line-height: 1.1;
+    color: #fff; margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+  .mm-h2 em { font-style: italic; color: var(--gold); }
+
+  .mm-body { font-size: 16px; font-weight: 300; line-height: 1.85; color: rgba(255,255,255,0.5); margin-bottom: 36px; max-width: 380px; }
+
+  .mm-feats { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+  .mm-feat { display: flex; align-items: flex-start; gap: 14px; }
+  .mm-feat-line {
+    width: 16px; height: 1px;
+    background: var(--gold); margin-top: 10px; flex-shrink: 0;
+    opacity: 0.6;
+  }
+  .mm-feat-text { font-size: 14.5px; font-weight: 300; color: rgba(255,255,255,0.65); line-height: 1.6; }
+  .mm-feat-text strong { color: rgba(255,255,255,0.9); font-weight: 500; }
+
+  /* Client workspace mockup */
+  .workspace {
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.03);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  }
+  .ws-titlebar {
+    background: rgba(255,255,255,0.05);
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    padding: 12px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ws-title { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); }
+  .ws-add { font-size: 12px; color: var(--gold); cursor: pointer; }
+
+  .ws-stats {
+    padding: 16px 18px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .ws-stat-n {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 400; color: var(--gold); line-height: 1;
+  }
+  .ws-stat-l { font-size: 10.5px; color: rgba(255,255,255,0.35); margin-top: 4px; letter-spacing: 0.3px; }
+
+  .ws-search {
+    padding: 10px 18px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ws-search input {
+    background: none; border: none; outline: none;
+    font-size: 12.5px; color: rgba(255,255,255,0.4);
+    font-family: 'DM Sans', sans-serif; width: 100%;
+  }
+
+  .ws-row {
+    padding: 13px 18px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .ws-row:hover { background: rgba(255,255,255,0.03); }
+  .ws-row:last-child { border-bottom: none; }
+
+  .ws-av {
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 12.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .av-s { background: rgba(184,134,11,0.2); color: var(--gold); }
+  .av-m { background: rgba(42,107,96,0.25); color: #5ECFB8; }
+  .av-g { background: rgba(122,20,24,0.25); color: #E07070; }
+  .av-v { background: rgba(100,100,200,0.2); color: #9898E8; }
+
+  .ws-info { flex: 1; min-width: 0; }
+  .ws-name { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .ws-meta { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+  .ws-chip { padding: 3px 9px; border-radius: 100px; font-size: 10.5px; font-weight: 500; }
+  .chip-active { background: rgba(42,107,96,0.22); color: #5ECFB8; }
+  .chip-viewed { background: rgba(184,134,11,0.18); color: var(--gold); }
+  .chip-draft  { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); }
+
+  .ws-more { padding: 12px 18px; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.25); }
+
+
+  /* ─────────────────────────────────────
+     TRUST
+  ───────────────────────────────────── */
+  .section-trust {
+    background: var(--parchment);
+    padding: 100px 52px;
+    position: relative;
+  }
+  .section-trust::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(184,134,11,0.25), transparent);
+  }
+
+  .trust-numbers {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; max-width: 540px; margin: 0 auto 72px;
+    border: 0.5px solid var(--gold-line); border-radius: 12px; overflow: hidden;
+  }
+  .trust-n-item {
+    padding: 28px 24px; text-align: center;
+    border-right: 0.5px solid var(--gold-line);
+  }
+  .trust-n-item:last-child { border-right: none; }
+  .trust-n {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px; font-weight: 400; color: var(--ink); line-height: 1;
+  }
+  .trust-n-l { font-size: 11.5px; color: var(--ink-ghost); margin-top: 7px; font-weight: 300; }
+
+  .trust-feats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+  .tf { }
+  .tf-icon { color: var(--gold); margin-bottom: 16px; }
+  .tf-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 400; color: var(--ink);
+    margin-bottom: 8px; line-height: 1.25;
+  }
+  .tf-desc { font-size: 13.5px; font-weight: 300; color: var(--ink-soft); line-height: 1.8; }
+  .tf-desc .deva { font-family: 'Noto Serif Devanagari', serif; }
+
+
+  /* ─────────────────────────────────────
+     FOOTER
+  ───────────────────────────────────── */
+  footer {
+    background: var(--warm-dark);
+    border-top: 0.5px solid rgba(184,134,11,0.15);
+    padding: 28px 52px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .foot-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .foot-rishte { font-family: 'Noto Serif Devanagari', serif; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.8); }
+  .foot-by { font-size: 11px; color: rgba(255,255,255,0.3); margin-left: 8px; }
+  .foot-nav { display: flex; gap: 28px; }
+  .foot-nav a { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.38); text-decoration: none; transition: color 0.2s; }
+  .foot-nav a:hover { color: rgba(255,255,255,0.8); }
+  .foot-copy { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.25); }
+
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav>
+  <a href="/" class="logo">
+    <div class="logo-mark">
+      <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
+        <path d="M15 3C11.5 3 8 5.8 8 9.5C8 12.2 9.8 14 11.5 15L7.5 23H11L13 19.2C13.6 19.4 14.3 19.5 15 19.5C18.6 19.5 21.5 16.5 21.5 13C21.5 9.5 18.8 5.5 15 3Z" fill="#B8860B" opacity="0.9"/>
+        <path d="M9.5 11C9.5 11 7 12.5 6 14.5" stroke="#B8860B" stroke-width="1.3" stroke-linecap="round" opacity="0.55"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <span class="logo-rishte">रिश्ते</span>
+      <span class="logo-by">BY DAANYAM</span>
+    </div>
+  </a>
+  <div class="nav-right">
+    <a href="#matchmakers" class="nav-link">For Matchmakers</a>
+    <a href="#" class="btn btn-fill" style="padding: 9px 20px; font-size: 13px;">Create My Biodata</a>
+  </div>
+</nav>
+
+
+<!-- ═══ HERO ═══ -->
+<section>
+  <div class="hero">
+
+    <!-- Left panel -->
+    <div class="hero-left">
+      <div class="hero-eyebrow reveal">
+        <div class="hero-eyebrow-dot"></div>
+        <span>Made for Hindu &amp; Jain <span class="deva">परिवार</span></span>
+      </div>
+
+      <h1 class="hero-h1 reveal reveal-d1">
+        Every <span class="rista">रिश्ता</span><br>begins with trust.
+      </h1>
+
+      <div class="hero-rule reveal reveal-d2"></div>
+
+      <div class="toggle reveal reveal-d2">
+        <button class="tog active" data-aud="families">For Families</button>
+        <span class="tog-sep">·</span>
+        <button class="tog" data-aud="you">For You</button>
+        <span class="tog-sep">·</span>
+        <button class="tog" data-aud="matchmakers">For Matchmakers</button>
+      </div>
+
+      <p class="hero-body reveal reveal-d3" id="hero-body">
+        Create a beautiful <em>विवाह</em> biodata for your child. Share it privately with the right <em>परिवार</em> — on your terms, not a platform's.
+      </p>
+
+      <div class="hero-actions reveal reveal-d3">
+        <a href="#" class="btn btn-fill" id="cta-primary">Create My Biodata</a>
+        <a href="#" class="btn btn-ghost" id="cta-secondary">See a Sample ↓</a>
+      </div>
+
+      <div class="hero-trust reveal reveal-d4" id="hero-trust">
+        <div class="trust-chip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Free to start
+        </div>
+        <div class="trust-chip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          No ads or spam
+        </div>
+        <div class="trust-chip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Your privacy, always
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel: arch + biodata -->
+    <div class="hero-right">
+      <div class="arch-wrap">
+        <div class="arch">
+          <div class="biodata-card">
+            <div class="bc-header-bar"></div>
+            <div class="bc-inner">
+              <div class="bc-top">
+                <div class="bc-photo">🌸</div>
+                <div>
+                  <div class="bc-name-deva">प्रिया शर्मा</div>
+                  <div class="bc-name-en">Priya Sharma</div>
+                  <div class="bc-age">25 · Mumbai · Hindu</div>
+                </div>
+              </div>
+              <div class="bc-field">
+                <span class="bc-field-k">Education</span>
+                <span class="bc-field-v">B.Tech, IIT Delhi</span>
+              </div>
+              <div class="bc-field">
+                <span class="bc-field-k">Profession</span>
+                <span class="bc-field-v">Software Engineer</span>
+              </div>
+              <div class="bc-field">
+                <span class="bc-field-k">Gotra</span>
+                <span class="bc-field-v">Bharadwaj</span>
+              </div>
+              <div class="bc-field">
+                <span class="bc-field-k">Rashi · Manglik</span>
+                <span class="bc-field-v">Kanya · No</span>
+              </div>
+              <div class="bc-field">
+                <span class="bc-field-k">Father</span>
+                <span class="bc-field-v">Rajesh Sharma, CA</span>
+              </div>
+            </div>
+            <div class="bc-footer">
+              <span class="bc-link-text">🔒 Private · Expires May 5</span>
+              <span class="bc-status">● Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating badge -->
+        <div class="arch-badge">
+          <div class="arch-badge-dot"></div>
+          Sharma परिवार viewed
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="section-how">
+  <div class="inner">
+    <div class="section-head reveal">
+      <div class="section-rule">
+        <div class="section-rule-line"></div>
+        <div class="section-rule-star">✦</div>
+        <div class="section-rule-line"></div>
+      </div>
+      <h2 class="section-title">How it works</h2>
+      <p class="section-sub">From your first detail to a shared biodata — three steps.</p>
+    </div>
+
+    <div class="how-grid">
+      <!-- Steps -->
+      <div>
+        <div class="step reveal">
+          <div class="step-num-col">
+            <span class="step-deva-num">०१</span>
+            <div class="step-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="step-hindi">भरें</div>
+            <div class="step-title">Fill your details</div>
+            <div class="step-desc">A guided 5-step form covering personal details, family, education, and horoscope. Takes about 15 minutes.</div>
+          </div>
+        </div>
+
+        <div class="step reveal reveal-d1">
+          <div class="step-num-col">
+            <span class="step-deva-num">०२</span>
+            <div class="step-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="step-hindi">सजाएं</div>
+            <div class="step-title">Choose your style</div>
+            <div class="step-desc">Pick from 4 beautifully designed templates — Traditional, Modern, Premium, and Split layout.</div>
+          </div>
+        </div>
+
+        <div class="step reveal reveal-d2">
+          <div class="step-num-col">
+            <span class="step-deva-num">०३</span>
+            <div class="step-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="step-hindi">भेजें</div>
+            <div class="step-title">Share privately</div>
+            <div class="step-desc">Create personal share links. Decide which sections each recipient sees. Revoke access anytime.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Traditions -->
+      <div class="traditions-side reveal reveal-d1">
+        <div class="traditions-eyebrow">Purpose-built for your traditions</div>
+
+        <div class="trad-card">
+          <div class="trad-sym" style="color:#BF4A1A;">ॐ</div>
+          <div>
+            <div class="trad-name">Hindu</div>
+            <div class="trad-tags">Gotra · Nakshatra · Manglik · Rashi</div>
+          </div>
+        </div>
+
+        <div class="trad-card">
+          <div class="trad-sym" style="color:#2A6B60;">☸</div>
+          <div>
+            <div class="trad-name">Jain</div>
+            <div class="trad-tags">Sect · Samaj · Pravachan · Gotra</div>
+          </div>
+        </div>
+
+        <div class="trad-coming">Sikh, Muslim &amp; Christian communities coming soon</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ MATCHMAKER ═══ -->
+<section class="section-mm" id="matchmakers">
+  <div class="inner">
+    <div class="mm-grid">
+
+      <!-- Left: copy -->
+      <div>
+        <div class="mm-label reveal">For Matchmakers</div>
+        <h2 class="mm-h2 reveal reveal-d1">Your practice deserves<br><em>professional tools.</em></h2>
+        <p class="mm-body reveal reveal-d2">
+          If you're managing 50–100 families at a time, a simple biodata form isn't enough. Rishte's matchmaker workspace gives you a full client management system — built around how you actually work.
+        </p>
+
+        <div class="mm-feats reveal reveal-d2">
+          <div class="mm-feat">
+            <div class="mm-feat-line"></div>
+            <div class="mm-feat-text"><strong>Unlimited client biodatas</strong> — no per-family charge, ever</div>
+          </div>
+          <div class="mm-feat">
+            <div class="mm-feat-line"></div>
+            <div class="mm-feat-text"><strong>Client folders</strong> — organize every family, search instantly</div>
+          </div>
+          <div class="mm-feat">
+            <div class="mm-feat-line"></div>
+            <div class="mm-feat-text"><strong>Reusable templates</strong> — create once, apply across similar profiles</div>
+          </div>
+          <div class="mm-feat">
+            <div class="mm-feat-line"></div>
+            <div class="mm-feat-text"><strong>View tracking</strong> — see which families opened which profiles</div>
+          </div>
+          <div class="mm-feat">
+            <div class="mm-feat-line"></div>
+            <div class="mm-feat-text"><strong>Per-link access control</strong> — revoke any share, anytime</div>
+          </div>
+        </div>
+
+        <a href="#" class="btn btn-gold-fill reveal reveal-d3">Explore Matchmaker Workspace →</a>
+      </div>
+
+      <!-- Right: workspace mockup -->
+      <div class="workspace reveal reveal-d2">
+        <div class="ws-titlebar">
+          <span class="ws-title">My Clients</span>
+          <span class="ws-add">+ Add Family</span>
+        </div>
+        <div class="ws-stats">
+          <div>
+            <div class="ws-stat-n">47</div>
+            <div class="ws-stat-l">Families</div>
+          </div>
+          <div>
+            <div class="ws-stat-n">12</div>
+            <div class="ws-stat-l">Active shares</div>
+          </div>
+          <div>
+            <div class="ws-stat-n">3</div>
+            <div class="ws-stat-l">Viewed today</div>
+          </div>
+        </div>
+        <div class="ws-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search families..." readonly>
+        </div>
+        <div class="ws-row">
+          <div class="ws-av av-s">S</div>
+          <div class="ws-info">
+            <div class="ws-name">Sharma <span class="deva" style="font-size:12px;">परिवार</span></div>
+            <div class="ws-meta">3 links · Viewed Apr 20</div>
+          </div>
+          <div class="ws-chip chip-active">● Active</div>
+        </div>
+        <div class="ws-row">
+          <div class="ws-av av-m">M</div>
+          <div class="ws-info">
+            <div class="ws-name">Mehta <span class="deva" style="font-size:12px;">जी</span></div>
+            <div class="ws-meta">1 link · Viewed Apr 18</div>
+          </div>
+          <div class="ws-chip chip-viewed">Viewed</div>
+        </div>
+        <div class="ws-row">
+          <div class="ws-av av-g">G</div>
+          <div class="ws-info">
+            <div class="ws-name">Gupta <span class="deva" style="font-size:12px;">परिवार</span></div>
+            <div class="ws-meta">Biodata incomplete</div>
+          </div>
+          <div class="ws-chip chip-draft">Draft</div>
+        </div>
+        <div class="ws-row">
+          <div class="ws-av av-v">V</div>
+          <div class="ws-info">
+            <div class="ws-name">Verma <span class="deva" style="font-size:12px;">परिवार</span></div>
+            <div class="ws-meta">2 links · Viewed Apr 22</div>
+          </div>
+          <div class="ws-chip chip-active">● Active</div>
+        </div>
+        <div class="ws-more">View all 47 families →</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ TRUST ═══ -->
+<section class="section-trust">
+  <div class="inner">
+    <div class="section-head reveal">
+      <div class="section-rule">
+        <div class="section-rule-line"></div>
+        <div class="section-rule-star">✦</div>
+        <div class="section-rule-line"></div>
+      </div>
+      <h2 class="section-title">Built on trust</h2>
+      <p class="section-sub"><span class="deva">शादी</span> is one of life's biggest steps. We take that seriously.</p>
+    </div>
+
+    <div class="trust-numbers reveal reveal-d1">
+      <div class="trust-n-item">
+        <div class="trust-n">2,400+</div>
+        <div class="trust-n-l">Biodatas created</div>
+      </div>
+      <div class="trust-n-item">
+        <div class="trust-n">180+</div>
+        <div class="trust-n-l">Matchmakers using Rishte</div>
+      </div>
+      <div class="trust-n-item">
+        <div class="trust-n">Zero</div>
+        <div class="trust-n-l">Ads. Ever.</div>
+      </div>
+    </div>
+
+    <div class="trust-feats">
+      <div class="tf reveal">
+        <div class="tf-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="tf-title">You control who sees what</div>
+        <div class="tf-desc">Share only the sections each recipient needs. Horoscope, photo, contact — all on separate links.</div>
+      </div>
+      <div class="tf reveal reveal-d1">
+        <div class="tf-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="tf-title">Verified profiles</div>
+        <div class="tf-desc">Real families. No fake profiles, no bots, no automated matching from our side.</div>
+      </div>
+      <div class="tf reveal reveal-d2">
+        <div class="tf-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="tf-title">No ads, ever</div>
+        <div class="tf-desc">Your <span class="deva">बायोडेटा</span> is not a product. We will never sell your family's data to anyone.</div>
+      </div>
+      <div class="tf reveal reveal-d3">
+        <div class="tf-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="tf-title">Built for your values</div>
+        <div class="tf-desc">Designed around Hindu &amp; Jain traditions — not adapted from a generic Western platform.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <a href="/" class="foot-logo">
+    <svg width="18" height="18" viewBox="0 0 30 30" fill="none"><path d="M15 3C11.5 3 8 5.8 8 9.5C8 12.2 9.8 14 11.5 15L7.5 23H11L13 19.2C13.6 19.4 14.3 19.5 15 19.5C18.6 19.5 21.5 16.5 21.5 13C21.5 9.5 18.8 5.5 15 3Z" fill="#B8860B" opacity="0.7"/></svg>
+    <span class="foot-rishte">रिश्ते</span>
+    <span class="foot-by">by Daanyam</span>
+  </a>
+  <nav class="foot-nav">
+    <a href="#">About</a>
+    <a href="#">Privacy</a>
+    <a href="#">Contact</a>
+  </nav>
+  <div class="foot-copy">© 2025 Daanyam</div>
+</footer>
+
+
+<script>
+/* ── Audience toggle ── */
+const copy = {
+  families: {
+    body: 'Create a beautiful <em>विवाह</em> biodata for your child. Share it privately with the right <em>परिवार</em> — on your terms, not a platform\'s.',
+    p1: 'Create My Biodata', p2: 'See a Sample ↓',
+    trust: ['Free to start', 'No ads or spam', 'Your privacy, always']
+  },
+  you: {
+    body: 'Build a biodata that truly represents you. Control who sees your photo, horoscope, and contact — share selectively, never publicly.',
+    p1: 'Start My Biodata', p2: 'See a Sample ↓',
+    trust: ['Free to start', 'You decide who sees what', 'No creepy matching algorithms']
+  },
+  matchmakers: {
+    body: 'Manage every client family in one workspace. Create biodatas in minutes, organize by family, and share with full access control — no extra cost per biodata.',
+    p1: 'Explore Matchmaker Workspace →', p2: 'How it works',
+    trust: ['Unlimited biodatas', 'Client folders & templates', 'View tracking per share link']
+  }
+};
+
+const heroBody    = document.getElementById('hero-body');
+const ctaPrimary  = document.getElementById('cta-primary');
+const ctaSecondary = document.getElementById('cta-secondary');
+const heroTrust   = document.getElementById('hero-trust');
+const checkSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+function setAud(aud) {
+  const d = copy[aud];
+  heroBody.classList.add('fade');
+  setTimeout(() => {
+    heroBody.innerHTML = d.body;
+    ctaPrimary.textContent = d.p1;
+    ctaSecondary.textContent = d.p2;
+    heroTrust.innerHTML = d.trust.map(t => `<div class="trust-chip">${checkSvg} ${t}</div>`).join('');
+    heroBody.classList.remove('fade');
+  }, 180);
+  document.querySelectorAll('.tog').forEach(b => b.classList.toggle('active', b.dataset.aud === aud));
+}
+
+document.querySelectorAll('.tog').forEach(b => b.addEventListener('click', () => setAud(b.dataset.aud)));
+
+
+/* ── Scroll reveal ── */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
