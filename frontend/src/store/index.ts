@@ -20,6 +20,27 @@ function loadBioDataState(): BioDataState {
     return {
       ...defaultBioDataState,
       ...rest,
+      personalDetails: {
+        ...defaultBioDataState.personalDetails,
+        ...rest.personalDetails
+      },
+      photos: {
+        ...defaultBioDataState.photos,
+        ...rest.photos
+      },
+      family: {
+        ...defaultBioDataState.family,
+        ...rest.family,
+        siblings: rest.family?.siblings?.length ? rest.family.siblings : defaultBioDataState.family.siblings
+      },
+      horoscope: {
+        ...defaultBioDataState.horoscope,
+        ...rest.horoscope,
+        computedKundli: {
+          ...defaultBioDataState.horoscope.computedKundli,
+          ...rest.horoscope?.computedKundli
+        }
+      },
       shares: []
     };
   } catch {

@@ -2,6 +2,17 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type TemplateId = "traditional" | "modern" | "premium" | "split";
 export type MarsDosha = "" | "yes" | "no" | "unknown";
+export type KundliComputationStatus = "idle" | "loading" | "ready" | "error";
+
+export interface ResolvedBirthPlace {
+  displayName: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  region: string | null;
+  state: string | null;
+  confidence: number | null;
+}
 
 export interface PersonalDetails {
   fullName: string;
@@ -44,31 +55,70 @@ export interface FamilyDetails {
   location: string;
 }
 
+export interface ComputedKundliResult {
+  rashi: string;
+  nakshatra: string;
+  pada: number | null;
+  lagna: string;
+  dashaSummary: string | null;
+  generatedAt: string;
+  source: "astro_engine";
+  engine: {
+    apiVersion: string | null;
+    engineSemanticVersion: string | null;
+    schemaVersion: string | null;
+    ayanamsa: string | null;
+    houseSystem: string | null;
+  };
+  rawEngineResponse: unknown;
+}
+
 export interface HoroscopeDetails {
   dob: string;
   birthTime: string;
   birthPlace: string;
-  rashi: string;
-  nakshatra: string;
+  selectedBirthPlaceLabel: string;
+  birthLatitude: string;
+  birthLongitude: string;
+  birthTimezone: string;
+  birthLocation: ResolvedBirthPlace | null;
   gotra: string;
   marsDosha: MarsDosha;
+  computedKundli: {
+    status: KundliComputationStatus;
+    error: string | null;
+    result: ComputedKundliResult | null;
+  };
 }
 
 export interface SharePermissions {
   viewBasic: boolean;
   viewPhotos: boolean;
-  viewHoroscope: boolean;
+  viewHoroscopeSummary: boolean;
+  viewHoroscopeBirthDetails: boolean;
+  viewHoroscopeDasha: boolean;
+  viewDetailedKundli: boolean;
   viewContact: boolean;
+  viewHoroscope?: boolean;
 }
+
+export type ShareType = "family" | "prospect" | "broker" | "private" | "horoscope_only";
+export type ShareSource = "preview_page" | "share_dashboard" | "direct_flow";
 
 export interface ShareRecord {
   id: string;
   token: string;
   recipient: string;
+  shareType: ShareType;
+  label: string | null;
+  source: ShareSource;
   permissions: SharePermissions;
   expiryDate: string;
   createdAt: string;
   lastAccessed: string | null;
+  openCount: number;
+  firstOpenedAt: string | null;
+  lastOpenedAt: string | null;
   status: "active" | "revoked";
 }
 
@@ -112,10 +162,18 @@ const defaultHoroscope: HoroscopeDetails = {
   dob: "",
   birthTime: "",
   birthPlace: "",
-  rashi: "",
-  nakshatra: "",
+  selectedBirthPlaceLabel: "",
+  birthLatitude: "",
+  birthLongitude: "",
+  birthTimezone: "Asia/Kolkata",
+  birthLocation: null,
   gotra: "",
-  marsDosha: ""
+  marsDosha: "",
+  computedKundli: {
+    status: "idle",
+    error: null,
+    result: null
+  }
 };
 
 export const defaultBioDataState: BioDataState = {
@@ -143,6 +201,17 @@ const makeId = (prefix: string) => {
 };
 
 const makeShareToken = () => makeId("share").replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+
+const horoscopeComputationInputKeys: Array<keyof HoroscopeDetails> = [
+  "dob",
+  "birthTime",
+  "birthPlace",
+  "selectedBirthPlaceLabel",
+  "birthLatitude",
+  "birthLongitude",
+  "birthTimezone",
+  "birthLocation"
+];
 
 const bioDataSlice = createSlice({
   name: "bioData",
@@ -212,9 +281,46 @@ const bioDataSlice = createSlice({
       }
     },
     updateHoroscope(state, action: PayloadAction<Partial<HoroscopeDetails>>) {
+      const shouldResetComputed = horoscopeComputationInputKeys.some((key) => {
+        if (!(key in action.payload)) {
+          return false;
+        }
+
+        return action.payload[key] !== state.horoscope[key];
+      });
+
       state.horoscope = {
         ...state.horoscope,
         ...action.payload
+      };
+
+      if (shouldResetComputed) {
+        state.horoscope.computedKundli = {
+          status: "idle",
+          error: null,
+          result: null
+        };
+      }
+    },
+    setHoroscopeComputationLoading(state) {
+      state.horoscope.computedKundli = {
+        status: "loading",
+        error: null,
+        result: state.horoscope.computedKundli.result
+      };
+    },
+    setHoroscopeComputationSuccess(state, action: PayloadAction<ComputedKundliResult>) {
+      state.horoscope.computedKundli = {
+        status: "ready",
+        error: null,
+        result: action.payload
+      };
+    },
+    setHoroscopeComputationError(state, action: PayloadAction<string>) {
+      state.horoscope.computedKundli = {
+        status: "error",
+        error: action.payload,
+        result: null
       };
     },
     setTemplate(state, action: PayloadAction<TemplateId>) {
@@ -248,6 +354,9 @@ const bioDataSlice = createSlice({
             token: makeShareToken(),
             createdAt: new Date().toISOString(),
             lastAccessed: null,
+            openCount: 0,
+            firstOpenedAt: null,
+            lastOpenedAt: null,
             status: "active" as const
           }
         };
@@ -291,6 +400,9 @@ export const {
   revokeShare,
   setCurrentStep,
   setError,
+  setHoroscopeComputationError,
+  setHoroscopeComputationLoading,
+  setHoroscopeComputationSuccess,
   setLoading,
   setPrimaryPhoto,
   setTemplate,

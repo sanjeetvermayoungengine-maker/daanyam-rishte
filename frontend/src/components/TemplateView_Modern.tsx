@@ -1,12 +1,13 @@
 import type { BioDataState } from "../store/bioDataSlice";
 import { formatDisplayDate, getAgeFromDob, getPrimaryPhoto } from "../utils/formHelpers";
+import { getHoroscopeFieldsForAccess, type HoroscopeAccessLevel } from "../utils/sharePermissions";
 
 type TemplateViewProps = {
   bioData: BioDataState;
   compact?: boolean;
   publicMode?: boolean;
   showPhotos?: boolean;
-  showHoroscope?: boolean;
+  horoscopeAccess?: HoroscopeAccessLevel;
   showContact?: boolean;
 };
 
@@ -58,11 +59,12 @@ function Field({ label, value, labelColor = "#526071" }: { label: string; value:
 export function TemplateViewModern({
   bioData,
   showPhotos = true,
-  showHoroscope = true,
+  horoscopeAccess = "detailed",
 }: TemplateViewProps) {
   const primaryPhoto = getPrimaryPhoto(bioData);
   const age = getAgeFromDob(bioData.personalDetails.dob);
   const siblings = bioData.family.siblings.filter((s) => s.name || s.occupation);
+  const horoscopeFields = getHoroscopeFieldsForAccess(bioData.horoscope, horoscopeAccess);
 
   const tagPills = [
     bioData.personalDetails.religion,
@@ -287,7 +289,7 @@ export function TemplateViewModern({
         <div style={{ height: 1, background: "#e2e8f0" }} />
 
         {/* Horoscope */}
-        {showHoroscope && (
+        {horoscopeFields.length > 0 && (
           <div
             style={{
               display: "grid",
@@ -295,12 +297,9 @@ export function TemplateViewModern({
               gap: "10px 20px",
             }}
           >
-            <Field label="Rashi" value={bioData.horoscope.rashi} />
-            <Field label="Nakshatra" value={bioData.horoscope.nakshatra} />
-            <Field label="Gotra" value={bioData.horoscope.gotra} />
-            <Field label="Mars Dosha" value={bioData.horoscope.marsDosha} />
-            <Field label="Birth Time" value={bioData.horoscope.birthTime} />
-            <Field label="Birth Place" value={bioData.horoscope.birthPlace} />
+            {horoscopeFields.map((field) => (
+              <Field key={field.label} label={field.label} value={field.value} />
+            ))}
           </div>
         )}
       </div>

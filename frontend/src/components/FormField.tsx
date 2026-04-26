@@ -8,7 +8,7 @@ type BaseProps = {
   error?: string;
   helperText?: string;
   placeholder?: string;
-  options?: string[];
+  options?: Array<string | { label: string; value: string }>;
   type?: InputHTMLAttributes<HTMLInputElement>["type"] | "textarea" | "select";
   rows?: TextareaHTMLAttributes<HTMLTextAreaElement>["rows"];
   onChange: (value: string) => void;
@@ -56,8 +56,11 @@ export function FormField({
         >
           <option value="">{placeholder ?? `Select ${label.toLowerCase()}`}</option>
           {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option
+              key={typeof option === "string" ? option : option.value}
+              value={typeof option === "string" ? option : option.value}
+            >
+              {typeof option === "string" ? option : option.label}
             </option>
           ))}
         </select>
