@@ -64,7 +64,7 @@ export function SharePrivacySettings() {
   const refreshShares = async () => {
     if (isConfigured && !user) {
       setShares([]);
-      setError("Sign in with Google to manage share links.");
+      setError("Sign in with your phone number to manage share links.");
       setIsLoading(false);
       return;
     }

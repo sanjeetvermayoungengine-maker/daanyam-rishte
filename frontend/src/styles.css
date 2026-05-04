@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* ── Palette ── */
   --crimson-50:  #fdf5f5;
@@ -1162,7 +1166,7 @@ main {
   border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.location-search-panel {
+.birthplace-lookup {
   background: linear-gradient(180deg, rgba(253,248,236,0.9), #ffffff);
   border: 1px solid rgba(184,134,11,0.2);
   border-radius: var(--radius-lg);
@@ -1172,16 +1176,11 @@ main {
   padding: var(--space-5);
 }
 
-.location-search-panel__header {
+.birthplace-lookup__header {
   align-items: start;
   display: flex;
   gap: var(--space-4);
   justify-content: space-between;
-}
-
-.location-search-panel__header h2 {
-  font-size: 1.2rem;
-  margin: 0;
 }
 
 .location-selection {
@@ -1230,6 +1229,13 @@ main {
 .location-candidate--selected {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(184,134,11,0.12);
+}
+
+@media (max-width: 720px) {
+  .birthplace-lookup__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 .kundli-actions {

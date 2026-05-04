@@ -88,7 +88,7 @@ export function validateHoroscopeDetails(values: HoroscopeDetails): ValidationEr
   if (!values.birthPlace.trim()) {
     errors.birthPlace = "Birth place is required";
   } else if (!hasResolvedBirthPlace(values)) {
-    errors.birthPlace = "Search and select a matching birthplace before generating the kundli";
+    errors.birthPlace = "Choose a suggested place or paste a map link so we can use exact coordinates for the kundli";
   }
 
   return errors;

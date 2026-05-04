@@ -39,3 +39,6 @@ Thumbs.db
 # Local
 .cache
 .turbo
+
+# Cowork / Claude session state
+.claude/

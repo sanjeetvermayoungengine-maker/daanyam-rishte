@@ -72,7 +72,7 @@ export function ShareModal({
       return "Share links are unavailable until Supabase is configured.";
     }
     if (!user) {
-      return "Sign in with Google to create share links.";
+      return "Sign in with your phone number to create share links.";
     }
     if (typeof error === "object" && error && "response" in error) {
       const response = (error as { response?: { data?: unknown } }).response;
@@ -177,7 +177,7 @@ export function ShareModal({
       return;
     }
     if (!user) {
-      setError("Sign in with Google to create share links.");
+      setError("Sign in with your phone number to create share links.");
       return;
     }
 

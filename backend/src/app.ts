@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmetImport from "helmet";
 import rateLimitImport from "express-rate-limit";
+import { authRoutes } from "./routes/authRoutes.js";
 import { geocodingRoutes } from "./routes/geocodingRoutes.js";
 import { kundliRoutes } from "./routes/kundliRoutes.js";
 import { shareRoutes } from "./routes/shareRoutes.js";
@@ -51,9 +52,31 @@ export function createApp() {
     })
   );
 
+  // Phone-OTP send is the most abused auth endpoint — limit per IP.
+  // 6 sends/IP/10min is generous for real users, painful for scripts.
+  app.use(
+    "/api/auth/send-otp",
+    rateLimit({
+      windowMs: 10 * 60 * 1000,
+      max: 6,
+      standardHeaders: true,
+      legacyHeaders: false,
+    })
+  );
+  app.use(
+    "/api/auth/verify-otp",
+    rateLimit({
+      windowMs: 10 * 60 * 1000,
+      max: 20,
+      standardHeaders: true,
+      legacyHeaders: false,
+    })
+  );
+
   app.get("/api/health", (_req, res) => {
     res.status(200).json(getHealthStatus());
   });
+  app.use("/api/auth", authRoutes);
   app.use("/api/geocoding", geocodingRoutes);
   app.use("/api/kundli", kundliRoutes);
   app.use("/api/shares", shareRoutes);

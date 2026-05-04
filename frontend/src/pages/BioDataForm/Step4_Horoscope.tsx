@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FormField } from "../../components/FormField";
 import { StepIndicator } from "../../components/StepIndicator";
@@ -16,6 +16,7 @@ import {
 } from "../../store/bioDataSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getBirthPlaceLabel, getComputedKundli, hasResolvedBirthPlace } from "../../utils/horoscope";
+import { findClearBirthPlaceMatch, tryResolveSharedLocation } from "../../utils/locationInput";
 import { hasErrors, validateHoroscopeDetails } from "../../utils/validation";
 
 export function Step4Horoscope() {
@@ -26,8 +27,8 @@ export function Step4Horoscope() {
   const [computeMessage, setComputeMessage] = useState("");
   const [locationCandidates, setLocationCandidates] = useState<ResolvedBirthPlace[]>([]);
   const [locationSearchError, setLocationSearchError] = useState("");
+  const [locationStatusMessage, setLocationStatusMessage] = useState("");
   const [isSearchingLocations, setIsSearchingLocations] = useState(false);
-  const [hasSearchedLocations, setHasSearchedLocations] = useState(false);
   const errors = useMemo(() => validateHoroscopeDetails(horoscope), [horoscope]);
   const isInvalid = hasErrors(errors);
   const computed = getComputedKundli(horoscope);
@@ -39,61 +40,27 @@ export function Step4Horoscope() {
   };
 
   const handleBirthPlaceChange = (value: string) => {
+    const sharedLocation = tryResolveSharedLocation(value);
+
     dispatch(updateHoroscope({
       birthPlace: value,
-      selectedBirthPlaceLabel: "",
-      birthLatitude: "",
-      birthLongitude: "",
-      birthLocation: null
+      selectedBirthPlaceLabel: sharedLocation?.displayName ?? "",
+      birthLatitude: sharedLocation ? String(sharedLocation.latitude) : "",
+      birthLongitude: sharedLocation ? String(sharedLocation.longitude) : "",
+      birthLocation: sharedLocation
     }));
     setLocationCandidates([]);
-    setHasSearchedLocations(false);
+    setLocationStatusMessage(
+      sharedLocation
+        ? "Coordinates captured from the shared map link. You can still switch to a searched place if needed."
+        : ""
+    );
     setLocationSearchError("");
-  };
-
-  const handleSearchLocations = async () => {
-    const query = horoscope.birthPlace.trim();
-    setHasSearchedLocations(true);
-    setLocationSearchError("");
-    setComputeMessage("");
-
-    if (!query) {
-      setLocationCandidates([]);
-      setLocationSearchError("Enter a birthplace before searching.");
-      return;
-    }
-
-    setIsSearchingLocations(true);
-
-    try {
-      const matches = await searchBirthPlacesApi(query);
-      setLocationCandidates(matches);
-
-      if (matches.length === 0) {
-        setLocationSearchError("We could not find a clear birthplace match. Check the spelling and try again.");
-      }
-    } catch (error) {
-      if (typeof error === "object" && error && "response" in error) {
-        const response = (error as { response?: { data?: unknown } }).response;
-        const data = response?.data;
-
-        if (typeof data === "object" && data && "error" in data && typeof data.error === "string") {
-          setLocationSearchError(data.error);
-        } else {
-          setLocationSearchError("We could not search birthplaces right now. Please try again.");
-        }
-      } else {
-        setLocationSearchError("We could not search birthplaces right now. Please try again.");
-      }
-
-      setLocationCandidates([]);
-    } finally {
-      setIsSearchingLocations(false);
-    }
   };
 
   const handleSelectLocation = (location: ResolvedBirthPlace) => {
     dispatch(updateHoroscope({
+      birthPlace: location.displayName,
       selectedBirthPlaceLabel: location.displayName,
       birthLatitude: String(location.latitude),
       birthLongitude: String(location.longitude),
@@ -101,7 +68,86 @@ export function Step4Horoscope() {
     }));
     setComputeMessage("");
     setLocationSearchError("");
+    setLocationStatusMessage("Birthplace locked with exact coordinates for kundli generation.");
   };
+
+  useEffect(() => {
+    const query = horoscope.birthPlace.trim();
+    const sharedLocation = tryResolveSharedLocation(query);
+
+    if (!query || sharedLocation) {
+      setLocationCandidates([]);
+      setIsSearchingLocations(false);
+      if (!query) {
+        setLocationSearchError("");
+        setLocationStatusMessage("");
+      }
+      return;
+    }
+
+    if (query.length < 2) {
+      setLocationCandidates([]);
+      setLocationSearchError("");
+      setLocationStatusMessage("");
+      setIsSearchingLocations(false);
+      return;
+    }
+
+    let cancelled = false;
+    const timeout = window.setTimeout(async () => {
+      setIsSearchingLocations(true);
+      setLocationSearchError("");
+
+      try {
+        const matches = await searchBirthPlacesApi(query);
+        if (cancelled) {
+          return;
+        }
+
+        const clearMatch = findClearBirthPlaceMatch(query, matches);
+        if (clearMatch) {
+          handleSelectLocation(clearMatch);
+          setLocationCandidates(matches.length > 1 ? matches : []);
+        } else {
+          setLocationCandidates(matches);
+          setLocationStatusMessage(matches.length > 0 ? "Choose the closest birthplace match." : "");
+
+          if (matches.length === 0) {
+            setLocationSearchError("We couldn't find that place yet. Try a broader city, district, landmark, or hospital name.");
+          }
+        }
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        if (typeof error === "object" && error && "response" in error) {
+          const response = (error as { response?: { data?: unknown } }).response;
+          const data = response?.data;
+
+          if (typeof data === "object" && data && "error" in data && typeof data.error === "string") {
+            setLocationSearchError(data.error);
+          } else {
+            setLocationSearchError("We could not search birthplaces right now. Please try again.");
+          }
+        } else {
+          setLocationSearchError("We could not search birthplaces right now. Please try again.");
+        }
+
+        setLocationCandidates([]);
+        setLocationStatusMessage("");
+      } finally {
+        if (!cancelled) {
+          setIsSearchingLocations(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [horoscope.birthPlace]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -203,7 +249,8 @@ export function Step4Horoscope() {
             value={horoscope.birthPlace}
             required
             error={submitted ? errors.birthPlace : undefined}
-            helperText="Search and select the correct place so we can use exact coordinates for kundli generation."
+            helperText="Type a city, town, area, landmark, or hospital. You can also paste a Google Maps share link."
+            placeholder="Eg. New Delhi, Apollo Hospital Chennai, or a Google Maps link"
             onChange={handleBirthPlaceChange}
           />
           <FormField
@@ -221,24 +268,15 @@ export function Step4Horoscope() {
           />
         </div>
 
-        <section className="location-search-panel" aria-live="polite">
-          <div className="location-search-panel__header">
-            <div>
-              <p className="eyebrow">Birthplace Resolution</p>
-              <h2>Search and confirm the location</h2>
-            </div>
-            <button
-              className="button button--secondary"
-              type="button"
-              disabled={isSearchingLocations}
-              onClick={() => void handleSearchLocations()}
-            >
-              {isSearchingLocations ? "Searching..." : "Search Place"}
-            </button>
+        <section className="birthplace-lookup" aria-live="polite">
+          <div className="birthplace-lookup__header">
+            <p className="eyebrow">Birthplace Lookup</p>
+            {isSearchingLocations ? <span className="status-pill status-pill--muted">Searching</span> : null}
           </div>
 
-          {locationSearchError ? (
-            <p className="field-error">{locationSearchError}</p>
+          {locationSearchError ? <p className="field-error">{locationSearchError}</p> : null}
+          {!locationSearchError && locationStatusMessage ? (
+            <p className="field-helper">{locationStatusMessage}</p>
           ) : null}
 
           {hasResolvedLocation ? (
@@ -250,7 +288,7 @@ export function Step4Horoscope() {
             </div>
           ) : (
             <p className="muted-text">
-              Pick the right birthplace match before generating the kundli. We do not auto-select uncertain matches.
+              We'll keep suggestions here while you type and only lock the coordinates once you choose a clear match.
             </p>
           )}
 
@@ -276,10 +314,6 @@ export function Step4Horoscope() {
                 );
               })}
             </div>
-          ) : null}
-
-          {hasSearchedLocations && !locationCandidates.length && !locationSearchError ? (
-            <p className="muted-text">No matches yet. Try a broader city or district name.</p>
           ) : null}
         </section>
 
