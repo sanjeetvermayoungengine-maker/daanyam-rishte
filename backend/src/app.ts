@@ -41,7 +41,10 @@ export function createApp() {
     })
   );
 
-  app.use(express.json());
+  // Photos are still base64 in bioData snapshots (see LAUNCH_RUNBOOK Step 8.1).
+  // Bumped from default 100kb to 10mb so share-create + biodata-update don't 413.
+  // Revert to 100kb once photos move to R2 (TODO).
+  app.use(express.json({ limit: "10mb" }));
   app.use(
     "/api/shares/:token",
     rateLimit({

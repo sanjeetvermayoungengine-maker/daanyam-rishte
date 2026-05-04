@@ -48,7 +48,21 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       email: claims.email,
     };
     next();
-  } catch {
+  } catch (err) {
+    // Log the real reason so we can debug 401s without exposing the token to clients.
+    // jose throws with .code (e.g. ERR_JWT_EXPIRED, ERR_JWS_SIGNATURE_VERIFICATION_FAILED,
+    // ERR_JWKS_NO_MATCHING_KEY, ERR_JWT_CLAIM_VALIDATION_FAILED).
+    const e = err as { code?: string; message?: string; claim?: string; reason?: string };
+    console.error(
+      "[requireAuth] jwtVerify failed",
+      JSON.stringify({
+        code: e.code,
+        message: e.message,
+        claim: e.claim,
+        reason: e.reason,
+        expectedIssuer: supabaseJwtIssuer,
+      })
+    );
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
