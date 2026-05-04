@@ -46,7 +46,7 @@ export function Home() {
           <strong>{isConfigured && !user ? "-" : activeShares.length}</strong>
           <p>
             {isConfigured && !user
-              ? "Sign in with Google to manage private share links."
+              ? "Sign in with your phone number to manage private share links."
               : activeShares.length
               ? "Manage recipients, access permissions, and expiry dates."
               : "Create share links after reviewing your biodata."}

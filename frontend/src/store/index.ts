@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { bioDataReducer, defaultBioDataState, type BioDataState } from "./bioDataSlice";
+import { onboardingReducer } from "./onboardingSlice";
 
 const storageKey = "rishta:biodata-state";
 
@@ -50,7 +51,8 @@ function loadBioDataState(): BioDataState {
 
 export const store = configureStore({
   reducer: {
-    bioData: bioDataReducer
+    bioData: bioDataReducer,
+    onboarding: onboardingReducer
   },
   preloadedState: {
     bioData: loadBioDataState()

@@ -1,5 +1,6 @@
 import { Provider } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext";
 import { Header } from "./components/Header";
 import { OTPVerify } from "./components/OTPVerify";
 import { BioDataPreview } from "./pages/BioDataPreview";
@@ -7,6 +8,7 @@ import { Home } from "./pages/Home";
 import { LandingPage } from "./pages/LandingPage";
 import { PublicBioDataView } from "./pages/PublicBioDataView";
 import { SharePrivacySettings } from "./pages/SharePrivacySettings";
+import { Onboarding } from "./pages/Onboarding";
 import { Step1PersonalDetails } from "./pages/BioDataForm/Step1_PersonalDetails";
 import { Step2Photos } from "./pages/BioDataForm/Step2_Photos";
 import { Step3Family } from "./pages/BioDataForm/Step3_Family";
@@ -22,7 +24,7 @@ export function getHealthCheckUrl(apiUrl = import.meta.env.VITE_API_URL ?? defau
 }
 
 // Routes where the global Header should not render (pages with their own nav)
-const HEADERLESS_ROUTES = ["/"];
+const HEADERLESS_ROUTES = ["/", "/onboarding"];
 
 function AppContent() {
   const location = useLocation();
@@ -35,6 +37,9 @@ function AppContent() {
         <Routes>
           {/* Public landing page — has its own nav */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Onboarding flow — has its own header */}
+          <Route path="/onboarding" element={<Onboarding />} />
 
           {/* App routes — use global Header */}
           <Route path="/dashboard" element={<Home />} />
@@ -59,9 +64,11 @@ function AppContent() {
 export function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </AuthProvider>
     </Provider>
   );
 }
