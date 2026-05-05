@@ -288,8 +288,8 @@ export class PostgresShareRepository implements ShareRepository {
          COALESCE(sl.source, 'direct_flow') AS source,
          sl.permissions, sl.expiry_date::text, sl.created_at::text, sl.last_accessed_at::text, sl.status,
          COUNT(*) FILTER (WHERE sae.event_type = 'share_opened')::text AS open_count,
-         MIN(sae.occurred_at)::text FILTER (WHERE sae.event_type = 'share_opened') AS first_opened_at,
-         MAX(sae.occurred_at)::text FILTER (WHERE sae.event_type = 'share_opened') AS last_opened_at
+         (MIN(sae.occurred_at) FILTER (WHERE sae.event_type = 'share_opened'))::text AS first_opened_at,
+         (MAX(sae.occurred_at) FILTER (WHERE sae.event_type = 'share_opened'))::text AS last_opened_at
        FROM share_links sl
        LEFT JOIN share_access_events sae ON sae.share_id = sl.id
        WHERE sl.owner_user_id = $1

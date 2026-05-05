@@ -31,7 +31,8 @@ shareRoutes.get("/presets", (_req, res) => {
 shareRoutes.get("/", requireAuth, async (req, res) => {
   try {
     res.status(200).json({ shares: await listShares(req.auth!.userId) });
-  } catch {
+  } catch (err) {
+    console.error("[shareRoutes GET /] listShares failed:", err);
     res.status(500).json({ error: "unable to fetch shares" });
   }
 });
@@ -39,7 +40,8 @@ shareRoutes.get("/", requireAuth, async (req, res) => {
 shareRoutes.get("/analytics/summary", requireAuth, async (req, res) => {
   try {
     res.status(200).json({ summary: await getShareAnalyticsSummary(req.auth!.userId) });
-  } catch {
+  } catch (err) {
+    console.error("[shareRoutes GET /analytics/summary] failed:", err);
     res.status(500).json({ error: "unable to fetch share analytics" });
   }
 });
