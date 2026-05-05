@@ -74,7 +74,10 @@ authRoutes.post("/send-otp", async (req, res) => {
     sms_encoding: "1",
     sender: senderId,
     number: phoneWithCountryCode,
-    message: "{{otp}} is your Rishte login OTP. Valid for 10 mins.",
+    // Must match the DLT-approved template registered with BulkSMSPlans.
+    // Reusing Daanyam's template since they share the BulkSMS account; if/when
+    // a Rishte-specific template gets DLT approval, swap this string.
+    message: "{{otp}} is your Daanyam login OTP. Valid for 10 mins.",
   };
 
   try {
