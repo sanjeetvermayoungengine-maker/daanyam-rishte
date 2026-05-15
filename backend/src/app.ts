@@ -28,6 +28,9 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
 export function createApp() {
   const app = express();
 
+  // Cloud Run / Vercel sit behind a reverse proxy — required for express-rate-limit.
+  app.set("trust proxy", 1);
+
   app.use(helmet());
   app.use(
     cors({
