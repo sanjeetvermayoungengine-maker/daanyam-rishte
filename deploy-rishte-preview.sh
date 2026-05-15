@@ -19,8 +19,8 @@ PROJECT_ID="${GCLOUD_PROJECT:-daanyam-astroengine}"
 REGION="${REGION:-asia-south1}"
 SERVICE="${SERVICE:-rishte-api-preview}"
 SUPABASE_URL_VAL="https://umpxmvtuchlkkdttcvfl.supabase.co"
-# Frontend preview origins (Vercel) — extend as needed.
-CORS_ORIGIN_VAL="https://rishte-preview.daanyam.in,https://daanyam-rishte-git-*.vercel.app,https://daanyam-rishte-*.vercel.app"
+# Frontend preview origins — exact match only (see backend/src/app.ts); no wildcards.
+CORS_ORIGIN_VAL="https://rishte-preview.daanyam.in,http://localhost:5173"
 
 # Defaults — override by exporting before running, e.g.:
 #   TEST_PHONES_VAL=9000000001,9000000002 bash deploy-rishte-preview.sh
