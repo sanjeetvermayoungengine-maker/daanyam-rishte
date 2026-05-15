@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { isTestPhone, getTestOtp, TEST_MESSAGE_ID } from "./testAuth.js";
 
 /**
  * Phone-OTP authentication for Rishte.
@@ -13,6 +14,11 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  *
  * Once the session is established, every protected backend route picks up the
  * Supabase JWT from the Authorization header (see middleware/requireAuth.ts).
+ *
+ * Test-mode bypass: phones listed in TEST_PHONES env (with TEST_OTP) skip
+ * BulkSMSPlans entirely so TesterArmy / Playwright can log in without SMS.
+ * See ./testAuth.ts for the helper and TESTERARMY.md for the test-phone list.
+ * Bypass is dead code unless TEST_PHONES is set — keep it unset on prod.
  */
 
 export const authRoutes = Router();
@@ -55,6 +61,14 @@ authRoutes.post("/send-otp", async (req, res) => {
   }
 
   const { phone } = parsed.data;
+
+  // Test-mode bypass — skip BulkSMSPlans for allowlisted phones.
+  if (isTestPhone(phone)) {
+    console.info(`[send-otp] TEST bypass: skipping BulkSMSPlans for ${phone}`);
+    res.status(200).json({ success: true, message_id: TEST_MESSAGE_ID });
+    return;
+  }
+
   const phoneWithCountryCode = `91${phone}`;
 
   const apiId = process.env.BULKSMS_API_ID;
@@ -123,39 +137,52 @@ authRoutes.post("/verify-otp", async (req, res) => {
 
   const { phone, otp, message_id } = parsed.data;
 
-  const apiId = process.env.BULKSMS_API_ID;
-  const apiPassword = process.env.BULKSMS_API_PASSWORD;
+  // Test-mode bypass — skip BulkSMSPlans verify for allowlisted phones. The
+  // Supabase upsert + magic-link mint below still runs, so test logins land
+  // a real session.
+  const usingTestBypass = isTestPhone(phone);
+  if (usingTestBypass) {
+    if (otp !== getTestOtp()) {
+      console.warn(`[verify-otp] TEST bypass: wrong OTP for ${phone}`);
+      res.status(400).json({ error: "That code didn't match. Please check and try again." });
+      return;
+    }
+    console.info(`[verify-otp] TEST bypass: accepted OTP for ${phone}`);
+  } else {
+    const apiId = process.env.BULKSMS_API_ID;
+    const apiPassword = process.env.BULKSMS_API_PASSWORD;
 
-  if (!apiId || !apiPassword) {
-    console.error("[verify-otp] BulkSMSPlans API credentials not configured");
-    res.status(500).json({ error: "SMS service is temporarily unavailable." });
-    return;
-  }
+    if (!apiId || !apiPassword) {
+      console.error("[verify-otp] BulkSMSPlans API credentials not configured");
+      res.status(500).json({ error: "SMS service is temporarily unavailable." });
+      return;
+    }
 
-  // 1. Verify the OTP with BulkSMSPlans.
-  let verifyData: Record<string, unknown>;
-  try {
-    const verifyResponse = await fetch("https://bulksmsplans.com/api/verify_status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        api_id: apiId,
-        api_password: apiPassword,
-        message_id,
-        otp,
-      }),
-    });
-    verifyData = (await verifyResponse.json()) as Record<string, unknown>;
-  } catch (error) {
-    console.error("[verify-otp] BulkSMSPlans verify call failed:", error);
-    res.status(502).json({ error: "Unable to verify OTP. Please try again." });
-    return;
-  }
+    // 1. Verify the OTP with BulkSMSPlans.
+    let verifyData: Record<string, unknown>;
+    try {
+      const verifyResponse = await fetch("https://bulksmsplans.com/api/verify_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_id: apiId,
+          api_password: apiPassword,
+          message_id,
+          otp,
+        }),
+      });
+      verifyData = (await verifyResponse.json()) as Record<string, unknown>;
+    } catch (error) {
+      console.error("[verify-otp] BulkSMSPlans verify call failed:", error);
+      res.status(502).json({ error: "Unable to verify OTP. Please try again." });
+      return;
+    }
 
-  if (Number(verifyData.code) !== 200) {
-    console.warn("[verify-otp] OTP rejected by BulkSMSPlans:", verifyData.code, verifyData.message);
-    res.status(400).json({ error: "That code didn't match. Please check and try again." });
-    return;
+    if (Number(verifyData.code) !== 200) {
+      console.warn("[verify-otp] OTP rejected by BulkSMSPlans:", verifyData.code, verifyData.message);
+      res.status(400).json({ error: "That code didn't match. Please check and try again." });
+      return;
+    }
   }
 
   // 2. Upsert the user in Supabase by phone, then mint a magiclink token_hash.

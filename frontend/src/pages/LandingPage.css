@@ -1047,10 +1047,12 @@
 .lp-footer {
   background: var(--lp-warm-dark);
   border-top: 0.5px solid rgba(184,134,11,0.15);
-  padding: 26px 52px;
+  padding: 32px 52px 26px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
 }
 .lp-foot-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .lp-foot-rishte { font-family: var(--lp-f-deva); font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.78); }
@@ -1058,7 +1060,40 @@
 .lp-foot-nav { display: flex; gap: 28px; }
 .lp-foot-nav a { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.38); text-decoration: none; transition: color 0.2s; }
 .lp-foot-nav a:hover { color: rgba(255,255,255,0.8); }
-.lp-foot-copy { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.25); }
+.lp-foot-copy { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.25); flex-basis: 100%; text-align: center; padding-top: 16px; border-top: 0.5px solid rgba(184,134,11,0.08); }
+.lp-foot-copy a { color: rgba(255,255,255,0.4); text-decoration: none; }
+.lp-foot-copy a:hover { color: rgba(255,255,255,0.8); }
+
+/* SEO content link grid in footer */
+.lp-foot-seo {
+  flex-basis: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 28px;
+  padding: 16px 0 4px;
+  border-top: 0.5px solid rgba(184,134,11,0.08);
+}
+.lp-foot-seo-col { display: flex; flex-direction: column; gap: 8px; }
+.lp-foot-seo-col h5 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 4px;
+}
+.lp-foot-seo-col a {
+  font-size: 13px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.38);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.lp-foot-seo-col a:hover { color: rgba(255,255,255,0.85); }
+@media (max-width: 640px) {
+  .lp-foot-seo { padding: 12px 0; gap: 20px; }
+  .lp-foot-seo-col { gap: 6px; }
+}
 
 /* Devanagari utility */
 .lp-deva { font-family: var(--lp-f-deva); }

@@ -9,12 +9,17 @@ import { LandingPage } from "./pages/LandingPage";
 import { PublicBioDataView } from "./pages/PublicBioDataView";
 import { SharePrivacySettings } from "./pages/SharePrivacySettings";
 import { Onboarding } from "./pages/Onboarding";
+import { AboutPage } from "./pages/AboutPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { ContactPage } from "./pages/ContactPage";
 import { Step1PersonalDetails } from "./pages/BioDataForm/Step1_PersonalDetails";
 import { Step2Photos } from "./pages/BioDataForm/Step2_Photos";
 import { Step3Family } from "./pages/BioDataForm/Step3_Family";
 import { Step4Horoscope } from "./pages/BioDataForm/Step4_Horoscope";
 import { Step5ChooseTemplate } from "./pages/BioDataForm/Step5_ChooseTemplate";
 import { Step6Review } from "./pages/BioDataForm/Step6_Review";
+import { contentRouteEntries, isContentPath } from "./seo/ContentRoutes";
+import "./seo/content.css";
 import { store } from "./store";
 
 const defaultApiUrl = "http://localhost:3000";
@@ -23,12 +28,14 @@ export function getHealthCheckUrl(apiUrl = import.meta.env.VITE_API_URL ?? defau
   return `${apiUrl.replace(/\/$/, "")}/api/health`;
 }
 
-// Routes where the global Header should not render (pages with their own nav)
-const HEADERLESS_ROUTES = ["/", "/onboarding"];
+// Routes where the global Header should not render (pages with their own nav).
+// Content pages bring their own header via <ContentLayout> — checked via isContentPath.
+const HEADERLESS_EXACT_ROUTES = ["/", "/onboarding"];
 
 function AppContent() {
   const location = useLocation();
-  const showHeader = !HEADERLESS_ROUTES.includes(location.pathname);
+  const showHeader =
+    !HEADERLESS_EXACT_ROUTES.includes(location.pathname) && !isContentPath(location.pathname);
 
   return (
     <div className="app-shell">
@@ -40,6 +47,16 @@ function AppContent() {
 
           {/* Onboarding flow — has its own header */}
           <Route path="/onboarding" element={<Onboarding />} />
+
+          {/* SEO content pages — each renders its own <ContentLayout> */}
+          {contentRouteEntries.map((r) => (
+            <Route key={r.path} path={r.path} element={r.element} />
+          ))}
+
+          {/* Static info pages */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* App routes — use global Header */}
           <Route path="/dashboard" element={<Home />} />

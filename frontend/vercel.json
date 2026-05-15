@@ -1,7 +1,43 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/robots.txt",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400" },
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400" },
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" }
+      ]
+    }
+  ],
   "rewrites": [
     {
+      "source": "/share/:token",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|whatsapp|telegrambot|linkedinbot|slackbot|discordbot|pinterest|googlebot|bingbot|duckduckbot|applebot|yandexbot|baiduspider).*"
+        }
+      ],
+      "destination": "https://rishte-api.daanyam.in/api/shares/:token/og"
+    },
+    {
       "source": "/(.*)",
+      "missing": [
+        { "type": "file", "value": "/$1/index.html" },
+        { "type": "file", "value": "/$1.html" },
+        { "type": "file", "value": "/$1" }
+      ],
       "destination": "/index.html"
     }
   ]

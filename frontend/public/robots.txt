@@ -1,0 +1,31 @@
+# Rishte by Daanyam — robots.txt
+# Public content pages are indexable; authenticated app routes are not.
+
+User-agent: *
+Allow: /
+Allow: /biodata-format
+Allow: /biodata-format/
+Allow: /vivah-muhurat
+Allow: /vivah-muhurat/
+Allow: /kundli-milan
+Allow: /kundli-milan/
+Allow: /wedding-checklist
+Allow: /wedding-checklist/
+Allow: /privacy-first-matchmaking
+Allow: /blog
+Allow: /blog/
+Allow: /hi/
+
+# Authenticated / app-only routes — keep out of the index
+Disallow: /dashboard
+Disallow: /biodata
+Disallow: /biodata/
+Disallow: /preview
+Disallow: /shares
+Disallow: /verify
+Disallow: /onboarding
+
+# Per-biodata share links are private by design
+Disallow: /share/
+
+Sitemap: https://rishte.daanyam.in/sitemap.xml

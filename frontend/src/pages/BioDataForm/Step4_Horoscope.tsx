@@ -380,6 +380,17 @@ export function Step4Horoscope() {
                   <strong>Engine:</strong> {computed.engine.engineSemanticVersion ?? "unknown"} · schema {computed.engine.schemaVersion ?? "unknown"}
                 </p>
               </div>
+              {/* Cross-link to Daanyam — opportunity to get the full kundli with the user already in horoscope context */}
+              <p className="muted-text" style={{ marginTop: 12, fontSize: 13 }}>
+                Want the complete janma kundli (full chart, divisional charts, dasha tables)?{" "}
+                <a
+                  href="https://daanyam.in/kundli?utm_source=rishte&utm_medium=crosslink&utm_campaign=horoscope_step"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get the full kundli on Daanyam →
+                </a>
+              </p>
             </>
           ) : (
             <p className="muted-text">

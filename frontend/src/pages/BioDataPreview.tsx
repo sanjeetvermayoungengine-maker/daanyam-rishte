@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { ShareModal } from "../components/ShareModal";
 import { TemplateViewModern } from "../components/TemplateView_Modern";
 import { TemplateViewPremium } from "../components/TemplateView_Premium";
@@ -86,9 +87,17 @@ const sampleBioData: BioDataState = {
 
 export function BioDataPreview() {
   const bioData = useAppSelector((state) => state.bioData);
+  const { session, isLoading } = useAuth();
   const [isShareOpen, setIsShareOpen] = useState(false);
   const isSamplePreview = !hasStartedBioData(bioData);
   const previewData = isSamplePreview ? sampleBioData : bioData;
+
+  // If the Redux store has a real draft but there is no active session, the
+  // previous user's PII is leaking to the current device user. Redirect them
+  // to /onboarding rather than exposing the data.
+  if (!isLoading && !session && !isSamplePreview) {
+    return <Navigate to="/onboarding" replace />;
+  }
 
   function renderTemplate() {
     switch (previewData.template) {

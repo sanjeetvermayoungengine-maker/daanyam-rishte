@@ -10,6 +10,12 @@ import {
   revokeShare,
   updateSharePermissions,
 } from "../services/shareService.js";
+import {
+  buildOgPayload,
+  isCrawlerUserAgent,
+  renderShareErrorOgHtml,
+  renderShareOgHtml,
+} from "../services/shareOgRenderer.js";
 import type { BioDataSnapshot, SharePermissions, ShareSource, ShareType } from "../types/share.js";
 
 type CreateShareBody = {
@@ -134,3 +140,48 @@ shareRoutes.get("/:token", async (req, res) => {
     res.status(500).json({ error: "unable to resolve share token" });
   }
 });
+
+/**
+ * Crawler-facing HTML endpoint for /share/:token.
+ *
+ * The frontend reverse-proxies link-preview bots (WhatsApp/Twitter/etc) to this
+ * route so they receive a tiny HTML page with proper OG tags derived from the
+ * biodata (honoring privacy settings). Real users continue through the SPA.
+ *
+ * Always returns 200 with HTML so the bot can read meta tags — error states
+ * (not found/expired/revoked) render an explanatory preview page instead of
+ * a JSON error.
+ */
+shareRoutes.get("/:token/og", async (req, res) => {
+  const token = req.params.token;
+  try {
+    const result = await getPublicShareByToken(token, {
+      userAgent: req.get("user-agent"),
+      referrer: req.get("referer") ?? req.get("referrer"),
+      ipAddress: req.ip,
+    });
+
+    let html: string;
+    if (result.kind === "ok") {
+      html = renderShareOgHtml(
+        buildOgPayload({ token, share: result.share, bioData: result.bioData })
+      );
+    } else {
+      html = renderShareErrorOgHtml({ token, reason: result.kind });
+    }
+
+    res.set("Cache-Control", "public, max-age=300");
+    res.set("Content-Type", "text/html; charset=utf-8");
+    res.status(200).send(html);
+  } catch (err) {
+    console.error("[shareRoutes GET /:token/og] failed:", err);
+    res
+      .status(200)
+      .set("Content-Type", "text/html; charset=utf-8")
+      .send(renderShareErrorOgHtml({ token, reason: "not_found" }));
+  }
+});
+
+// Re-export for use by a top-level router that wants to inspect user-agent
+// before routing crawlers to /og or the SPA.
+export { isCrawlerUserAgent };

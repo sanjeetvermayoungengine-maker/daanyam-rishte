@@ -177,7 +177,7 @@ export function LandingPage() {
           <button className="lp-nav-link" onClick={(e) => { scrollToMatchmaker(e); setMobileMenuOpen(false); }}>
             For Matchmakers <span className="lp-nav-soon">Soon</span>
           </button>
-          <Link to="/biodata/personal" className="lp-btn lp-btn-fill" onClick={() => setMobileMenuOpen(false)}>
+          <Link to="/onboarding" className="lp-btn lp-btn-fill" onClick={() => setMobileMenuOpen(false)}>
             Create My Biodata
           </Link>
         </div>
@@ -232,7 +232,7 @@ export function LandingPage() {
             </p>
 
             <div className="lp-hero-actions lp-reveal lp-d3">
-              <Link to="/biodata/personal" className="lp-btn lp-btn-fill">
+              <Link to="/onboarding" className="lp-btn lp-btn-fill">
                 {content.ctaPrimary}
               </Link>
               <Link to="/preview" className="lp-btn lp-btn-ghost">
@@ -279,7 +279,7 @@ export function LandingPage() {
                     ))}
                   </div>
                   <div className="lp-bc-foot">
-                    <span className="lp-bc-link">🔒 Private · Expires May 5</span>
+                    <span className="lp-bc-link">🔒 Private · Expires in 7 days</span>
                     <span className="lp-bc-badge">● Active</span>
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export function LandingPage() {
               </div>
 
               <div className="lp-trad-soon">
-                Sikh, Muslim &amp; Christian communities coming soon
+                Muslim &amp; Christian communities coming soon
               </div>
             </div>
           </div>
@@ -548,7 +548,7 @@ export function LandingPage() {
                 <li><CheckIcon /> All 4 design templates</li>
                 <li><CheckIcon /> Horoscope &amp; gotra fields</li>
               </ul>
-              <Link to="/biodata/personal" className="lp-btn lp-btn-ghost lp-price-cta">
+              <Link to="/onboarding" className="lp-btn lp-btn-ghost lp-price-cta">
                 Get Started — Free
               </Link>
             </div>
@@ -573,7 +573,7 @@ export function LandingPage() {
                 <li><CheckIcon /> Priority support</li>
                 <li><CheckIcon /> PDF download &amp; print</li>
               </ul>
-              <Link to="/biodata/personal" className="lp-btn lp-btn-fill lp-price-cta">
+              <Link to="/onboarding" className="lp-btn lp-btn-fill lp-price-cta">
                 Start with Family — ₹99/mo
               </Link>
             </div>
@@ -600,9 +600,9 @@ export function LandingPage() {
           {/* Numbers */}
           <div className="lp-trust-numbers lp-reveal lp-d1">
             {[
-              ["2,400+", "Biodatas created"],
-              ["180+", "Matchmakers using Rishte"],
+              ["Hindu & Jain", "families across India"],
               ["Zero", "Ads. Ever."],
+              ["Your terms", "not a platform's"],
             ].map(([n, l]) => (
               <div key={l} className="lp-trust-n-item">
                 <div className="lp-trust-n">{n}</div>
@@ -679,7 +679,7 @@ export function LandingPage() {
               <br />
               Takes about 15 minutes.
             </p>
-            <Link to="/biodata/personal" className="lp-btn lp-btn-fill lp-final-btn">
+            <Link to="/onboarding" className="lp-btn lp-btn-fill lp-final-btn">
               Create My Biodata
             </Link>
             <p className="lp-final-note">No account required to start</p>
@@ -699,7 +699,38 @@ export function LandingPage() {
           <Link to="/privacy">Privacy</Link>
           <Link to="/contact">Contact</Link>
         </nav>
-        <div className="lp-foot-copy">© 2025 Daanyam</div>
+
+        {/* SEO content links — kept understated, surfacing the public guides */}
+        <nav className="lp-foot-seo" aria-label="Marriage biodata guides">
+          <div className="lp-foot-seo-col">
+            <h5>Biodata Formats</h5>
+            <Link to="/biodata-format">Marriage Biodata Format</Link>
+            <Link to="/biodata-format/boy">Biodata for Boys</Link>
+            <Link to="/biodata-format/girl">Biodata for Girls</Link>
+            <Link to="/biodata-format/hindi">Hindi Biodata</Link>
+            <Link to="/biodata-format/marathi">Marathi Biodata</Link>
+            <Link to="/biodata-format/gujarati">Gujarati Biodata</Link>
+          </div>
+          <div className="lp-foot-seo-col">
+            <h5>Astrology &amp; Wedding</h5>
+            <Link to="/kundli-milan">Kundli Milan</Link>
+            <Link to="/kundli-milan/ashtakoot">Ashtakoot Matching</Link>
+            <Link to="/kundli-milan/manglik">Manglik Dosha</Link>
+            <Link to="/vivah-muhurat/2026">Vivah Muhurat 2026</Link>
+            <Link to="/wedding-checklist">Wedding Checklist</Link>
+          </div>
+          <div className="lp-foot-seo-col">
+            <h5>About Rishte</h5>
+            <Link to="/privacy-first-matchmaking">Privacy-First Matchmaking</Link>
+            <Link to="/blog/why-not-matrimonial-sites">vs. Matrimonial Sites</Link>
+            <Link to="/blog/biodata-sharing-etiquette">Sharing Etiquette</Link>
+            <a href="https://daanyam.in" target="_blank" rel="noopener noreferrer">
+              Daanyam (astrology)
+            </a>
+          </div>
+        </nav>
+
+        <div className="lp-foot-copy">© 2026 Daanyam · <a href="https://daanyam.in" target="_blank" rel="noopener noreferrer">Powered by Daanyam's Vedic astrology engine</a></div>
       </footer>
 
     </div>

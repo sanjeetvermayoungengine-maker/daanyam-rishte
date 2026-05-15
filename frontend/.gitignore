@@ -1,0 +1,4 @@
+
+# Prerender esbuild cache
+.cache/
+
