@@ -131,6 +131,7 @@ const SparrowMark = ({ size = 26, opacity = 0.88 }: { size?: number; opacity?: n
 export function LandingPage() {
   const [audience, setAudience] = useState<Audience>("families");
   const [bodyFade, setBodyFade] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const matchmakerRef = useRef<HTMLElement>(null);
 
   useReveal();
@@ -163,11 +164,20 @@ export function LandingPage() {
             <span className="lp-logo-by">BY DAANYAM</span>
           </div>
         </Link>
-        <div className="lp-nav-right">
-          <button className="lp-nav-link" onClick={scrollToMatchmaker}>
-            For Matchmakers
+        <button
+          className="lp-hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span className={`lp-hamburger-line${mobileMenuOpen ? " lp-open" : ""}`} />
+          <span className={`lp-hamburger-line${mobileMenuOpen ? " lp-open" : ""}`} />
+          <span className={`lp-hamburger-line${mobileMenuOpen ? " lp-open" : ""}`} />
+        </button>
+        <div className={`lp-nav-right${mobileMenuOpen ? " lp-nav-open" : ""}`}>
+          <button className="lp-nav-link" onClick={(e) => { scrollToMatchmaker(e); setMobileMenuOpen(false); }}>
+            For Matchmakers <span className="lp-nav-soon">Soon</span>
           </button>
-          <Link to="/biodata/personal" className="lp-btn lp-btn-fill">
+          <Link to="/biodata/personal" className="lp-btn lp-btn-fill" onClick={() => setMobileMenuOpen(false)}>
             Create My Biodata
           </Link>
         </div>
@@ -387,19 +397,40 @@ export function LandingPage() {
               </div>
             </div>
           </div>
+
+          {/* See it in action — video scaffold */}
+          <div className="lp-video-block lp-reveal" style={{ marginTop: 64 }}>
+            <div className="lp-video-text">
+              <h3 className="lp-video-title">See it in action</h3>
+              <p className="lp-video-sub">
+                Watch a 90-second walkthrough of creating and sharing a biodata.
+              </p>
+            </div>
+            <div className="lp-video-player">
+              {/* Replace with <video> or <iframe> when ready */}
+              <div className="lp-video-play">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
+                  <polygon points="8 5 20 12 8 19" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── MATCHMAKER ── */}
+      {/* ── MATCHMAKER (Coming Soon) ── */}
       <section className="lp-section-mm" ref={matchmakerRef}>
         <div className="lp-inner">
           <div className="lp-mm-grid">
 
             {/* Left: copy */}
             <div>
-              <span className="lp-label lp-reveal" style={{ marginBottom: 20, display: "block" }}>
-                For Matchmakers
-              </span>
+              <div className="lp-mm-label-row lp-reveal">
+                <span className="lp-label" style={{ display: "inline-block" }}>
+                  For Matchmakers
+                </span>
+                <span className="lp-coming-soon-badge">Coming Soon</span>
+              </div>
               <h2 className="lp-mm-h2 lp-reveal lp-d1">
                 Your practice deserves
                 <br />
@@ -407,7 +438,7 @@ export function LandingPage() {
               </h2>
               <p className="lp-mm-body lp-reveal lp-d2">
                 If you're managing 50–100 families at a time, a simple biodata
-                form isn't enough. Rishte's matchmaker workspace gives you a full
+                form isn't enough. Rishte's matchmaker workspace will give you a full
                 client management system — built around how you actually work.
               </p>
 
@@ -428,12 +459,12 @@ export function LandingPage() {
                 ))}
               </div>
 
-              <Link
-                to="/biodata/personal"
-                className="lp-btn lp-btn-gold lp-reveal lp-d3"
+              <button
+                className="lp-btn lp-btn-gold lp-btn-disabled lp-reveal lp-d3"
+                disabled
               >
-                Explore Matchmaker Workspace →
-              </Link>
+                Launching Soon — Stay Tuned
+              </button>
             </div>
 
             {/* Right: workspace mockup */}
@@ -462,7 +493,6 @@ export function LandingPage() {
                 { cls: "lp-av-s", initial: "S", name: "Sharma", hindi: "परिवार", meta: "3 links · Viewed Apr 20", chip: "lp-chip-active", chipLabel: "● Active" },
                 { cls: "lp-av-m", initial: "M", name: "Mehta",  hindi: "जी",      meta: "1 link · Viewed Apr 18", chip: "lp-chip-viewed", chipLabel: "Viewed" },
                 { cls: "lp-av-g", initial: "G", name: "Gupta",  hindi: "परिवार", meta: "Biodata incomplete",      chip: "lp-chip-draft",  chipLabel: "Draft" },
-                { cls: "lp-av-v", initial: "V", name: "Verma",  hindi: "परिवार", meta: "2 links · Viewed Apr 22", chip: "lp-chip-active", chipLabel: "● Active" },
               ].map((row) => (
                 <div key={row.name} className="lp-ws-row">
                   <div className={`lp-ws-av ${row.cls}`}>{row.initial}</div>
@@ -481,6 +511,72 @@ export function LandingPage() {
               <div className="lp-ws-more">View all 47 families →</div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ── */}
+      <section className="lp-section-pricing">
+        <div className="lp-inner">
+          <div className="lp-section-head lp-reveal">
+            <div className="lp-rule">
+              <div className="lp-rule-line" />
+              <span className="lp-rule-star">✦</span>
+              <div className="lp-rule-line" />
+            </div>
+            <h2 className="lp-section-title">Simple pricing</h2>
+            <p className="lp-section-sub">
+              Start free. Upgrade only when you need to.
+            </p>
+          </div>
+
+          <div className="lp-pricing-grid lp-reveal lp-d1">
+            {/* Free tier */}
+            <div className="lp-price-card">
+              <div className="lp-price-header">
+                <span className="lp-price-name">Free</span>
+                <span className="lp-price-amount">
+                  <span className="lp-price-currency">₹</span>0
+                </span>
+              </div>
+              <p className="lp-price-desc">
+                1 biodata, 3 share links, all templates included.
+              </p>
+              <ul className="lp-price-list">
+                <li><CheckIcon /> 1 biodata profile</li>
+                <li><CheckIcon /> 3 private share links</li>
+                <li><CheckIcon /> All 4 design templates</li>
+                <li><CheckIcon /> Horoscope &amp; gotra fields</li>
+              </ul>
+              <Link to="/biodata/personal" className="lp-btn lp-btn-ghost lp-price-cta">
+                Get Started — Free
+              </Link>
+            </div>
+
+            {/* Family tier */}
+            <div className="lp-price-card lp-price-featured">
+              <div className="lp-price-popular">Popular</div>
+              <div className="lp-price-header">
+                <span className="lp-price-name">Family</span>
+                <span className="lp-price-amount">
+                  <span className="lp-price-currency">₹</span>99
+                  <span className="lp-price-period">/mo</span>
+                </span>
+              </div>
+              <p className="lp-price-desc">
+                Unlimited biodatas &amp; shares for the whole family.
+              </p>
+              <ul className="lp-price-list">
+                <li><CheckIcon /> Unlimited biodata profiles</li>
+                <li><CheckIcon /> Unlimited share links</li>
+                <li><CheckIcon /> View tracking per link</li>
+                <li><CheckIcon /> Priority support</li>
+                <li><CheckIcon /> PDF download &amp; print</li>
+              </ul>
+              <Link to="/biodata/personal" className="lp-btn lp-btn-fill lp-price-cta">
+                Start with Family — ₹99/mo
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -515,12 +611,12 @@ export function LandingPage() {
             ))}
           </div>
 
-          {/* Features */}
-          <div className="lp-trust-feats">
+          {/* Features — stacked list */}
+          <div className="lp-trust-feats-list">
             {[
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>
                 ),
@@ -530,7 +626,7 @@ export function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
@@ -541,7 +637,7 @@ export function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -552,7 +648,7 @@ export function LandingPage() {
               },
               {
                 icon: (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
                 ),
@@ -561,12 +657,32 @@ export function LandingPage() {
                 delay: "lp-d3",
               },
             ].map((f) => (
-              <div key={f.title} className={`lp-reveal ${f.delay}`}>
+              <div key={f.title} className={`lp-tf-row lp-reveal ${f.delay}`}>
                 <div className="lp-tf-icon">{f.icon}</div>
-                <div className="lp-tf-title">{f.title}</div>
-                <div className="lp-tf-desc">{f.desc}</div>
+                <div>
+                  <div className="lp-tf-title">{f.title}</div>
+                  <div className="lp-tf-desc">{f.desc}</div>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ── */}
+      <section className="lp-section-final-cta">
+        <div className="lp-inner">
+          <div className="lp-final-cta-content lp-reveal">
+            <h2 className="lp-final-h2">Ready to begin?</h2>
+            <p className="lp-final-sub">
+              Your biodata is free. Your privacy is guaranteed.
+              <br />
+              Takes about 15 minutes.
+            </p>
+            <Link to="/biodata/personal" className="lp-btn lp-btn-fill lp-final-btn">
+              Create My Biodata
+            </Link>
+            <p className="lp-final-note">No account required to start</p>
           </div>
         </div>
       </section>
