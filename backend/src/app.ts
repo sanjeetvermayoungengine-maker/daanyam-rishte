@@ -6,6 +6,7 @@ import { authRoutes } from "./routes/authRoutes.js";
 import { geocodingRoutes } from "./routes/geocodingRoutes.js";
 import { kundliRoutes } from "./routes/kundliRoutes.js";
 import { shareRoutes } from "./routes/shareRoutes.js";
+import { createCorsOriginChecker, parseAllowedOrigins, parseOriginSuffixes } from "./corsOrigin.js";
 
 const helmet = (helmetImport as typeof helmetImport & { default?: typeof helmetImport }).default ?? helmetImport;
 const rateLimit =
@@ -18,12 +19,11 @@ export function getHealthStatus() {
   };
 }
 
-// Support comma-separated list of allowed origins via CORS_ORIGIN env var.
-// e.g. CORS_ORIGIN=https://rishte.daanyam.in,https://daanyam-rishte.vercel.app
-const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
+// Exact origins: CORS_ORIGIN=https://rishte.daanyam.in,https://rishte-preview.daanyam.in
+// Suffixes (preview only): CORS_ORIGIN_SUFFIXES=.vercel.app
+const allowedOrigins = parseAllowedOrigins(process.env.CORS_ORIGIN);
+const allowedOriginSuffixes = parseOriginSuffixes(process.env.CORS_ORIGIN_SUFFIXES);
+const checkCorsOrigin = createCorsOriginChecker(allowedOrigins, allowedOriginSuffixes);
 
 export function createApp() {
   const app = express();
@@ -34,12 +34,7 @@ export function createApp() {
   app.use(helmet());
   app.use(
     cors({
-      origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
-        // Allow server-to-server / curl requests (no origin header)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        callback(new Error(`CORS: origin '${origin}' is not allowed`));
-      },
+      origin: checkCorsOrigin,
       credentials: true,
     })
   );
@@ -76,6 +71,25 @@ export function createApp() {
       max: 20,
       standardHeaders: true,
       legacyHeaders: false,
+    })
+  );
+
+  app.use(
+    "/api/geocoding",
+    rateLimit({ windowMs: 60_000, max: 30, standardHeaders: true, legacyHeaders: false })
+  );
+  app.use(
+    "/api/kundli",
+    rateLimit({ windowMs: 60_000, max: 10, standardHeaders: true, legacyHeaders: false })
+  );
+  app.use(
+    "/api/shares",
+    rateLimit({
+      windowMs: 60_000,
+      max: 6,
+      standardHeaders: true,
+      legacyHeaders: false,
+      skip: (req) => req.method !== "POST" || req.path !== "/",
     })
   );
 

@@ -1,11 +1,12 @@
 import { Router } from "express";
+import { requireAuth } from "../middleware/requireAuth.js";
 import { AstroEngineClientError } from "../services/astroEngineClient.js";
 import { generateKundli, KundliGenerationError } from "../services/kundliService.js";
 import type { KundliGenerationRequest } from "../types/horoscope.js";
 
 export const kundliRoutes = Router();
 
-kundliRoutes.post("/generate", async (req, res) => {
+kundliRoutes.post("/generate", requireAuth, async (req, res) => {
   try {
     const input = req.body as Partial<KundliGenerationRequest>;
     const kundli = await generateKundli(input.birthDetails ?? {
