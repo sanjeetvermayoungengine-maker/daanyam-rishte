@@ -128,7 +128,7 @@ export function applySharePreset(
   overrides?: Partial<SharePermissions>
 ): SharePermissions {
   return normalizeSharePermissions({
-    ...getSharePresetPermissions(shareType),
+    ...sharePresetMap[shareType].permissions,
     ...overrides,
   });
 }
