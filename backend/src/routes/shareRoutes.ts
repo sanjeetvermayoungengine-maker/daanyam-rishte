@@ -17,6 +17,7 @@ import {
   renderShareOgHtml,
 } from "../services/shareOgRenderer.js";
 import type { BioDataSnapshot, SharePermissions, ShareSource, ShareType } from "../types/share.js";
+import { bioDataSnapshotSchema } from "../types/shareValidation.js";
 
 type CreateShareBody = {
   recipient?: string;
@@ -59,6 +60,12 @@ shareRoutes.post("/", requireAuth, async (req, res) => {
     return;
   }
 
+  const parsedBioData = bioDataSnapshotSchema.safeParse(body.bioData);
+  if (!parsedBioData.success) {
+    res.status(400).json({ error: parsedBioData.error.issues[0]?.message ?? "invalid bioData" });
+    return;
+  }
+
   try {
     const share = await createShare({
       ownerUserId: req.auth!.userId,
@@ -68,7 +75,7 @@ shareRoutes.post("/", requireAuth, async (req, res) => {
       source: body.source,
       expiryDate: body.expiryDate ?? "",
       permissions: body.permissions,
-      bioData: body.bioData,
+      bioData: parsedBioData.data as unknown as BioDataSnapshot,
     });
 
     res.status(201).json({ share });
@@ -91,7 +98,8 @@ shareRoutes.patch("/:id/permissions", requireAuth, async (req, res) => {
     }
 
     res.status(200).json({ share });
-  } catch {
+  } catch (err) {
+    console.error("[shareRoutes PATCH /:id/permissions] failed:", err);
     res.status(500).json({ error: "unable to update permissions" });
   }
 });
@@ -105,7 +113,8 @@ shareRoutes.patch("/:id/revoke", requireAuth, async (req, res) => {
     }
 
     res.status(200).json({ share });
-  } catch {
+  } catch (err) {
+    console.error("[shareRoutes PATCH /:id/revoke] failed:", err);
     res.status(500).json({ error: "unable to revoke share" });
   }
 });
@@ -136,7 +145,8 @@ shareRoutes.get("/:token", async (req, res) => {
       share: result.share,
       bioData: result.bioData,
     });
-  } catch {
+  } catch (err) {
+    console.error("[shareRoutes GET /:token] failed:", err);
     res.status(500).json({ error: "unable to resolve share token" });
   }
 });

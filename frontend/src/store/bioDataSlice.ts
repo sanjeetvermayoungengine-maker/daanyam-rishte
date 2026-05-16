@@ -200,8 +200,6 @@ const makeId = (prefix: string) => {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 };
 
-const makeShareToken = () => makeId("share").replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
-
 const horoscopeComputationInputKeys: Array<keyof HoroscopeDetails> = [
   "dob",
   "birthTime",
@@ -231,6 +229,9 @@ const bioDataSlice = createSlice({
       state.photos = action.payload;
     },
     addPhoto(state, action: PayloadAction<BioPhoto>) {
+      if (state.photos.items.length >= 6) {
+        return;
+      }
       state.photos.items.push(action.payload);
       state.photos.primaryPhotoId = state.photos.primaryPhotoId ?? action.payload.id;
     },
@@ -351,7 +352,7 @@ const bioDataSlice = createSlice({
           payload: {
             ...input,
             id,
-            token: makeShareToken(),
+            token: "",
             createdAt: new Date().toISOString(),
             lastAccessed: null,
             openCount: 0,
@@ -385,6 +386,9 @@ const bioDataSlice = createSlice({
     },
     resetForm() {
       return defaultBioDataState;
+    },
+    resetBioData() {
+      return defaultBioDataState;
     }
   }
 });
@@ -396,6 +400,7 @@ export const {
   markShareAccessed,
   removePhoto,
   removeSibling,
+  resetBioData,
   resetForm,
   revokeShare,
   setCurrentStep,

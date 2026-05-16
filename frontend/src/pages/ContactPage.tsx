@@ -27,9 +27,9 @@ export function ContactPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 40 }}>
           {[
             { label: "Bug reports", desc: "Something broken? Tell us the URL, what you did, and what happened." },
-            { label: "Privacy &amp; data requests", desc: "To access, correct, or delete your data — see our Privacy Policy for full details." },
+            { label: "Privacy & data requests", desc: "To access, correct, or delete your data — see our Privacy Policy for full details." },
             { label: "Account help", desc: "OTP not arriving, can't log in, or need to change your phone number." },
-            { label: "Feedback &amp; suggestions", desc: "We're early. Your feedback directly shapes what we build next." },
+            { label: "Feedback & suggestions", desc: "We're early. Your feedback directly shapes what we build next." },
             { label: "Partnership or press", desc: "Matchmakers, community organisations, or media enquiries." },
           ].map((item) => (
             <div
@@ -39,8 +39,8 @@ export function ContactPage() {
                 paddingLeft: 16,
               }}
             >
-              <div style={{ fontWeight: 600, marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: item.label }} />
-              <div style={{ color: "#6b5e52", fontSize: "0.95rem" }} dangerouslySetInnerHTML={{ __html: item.desc }} />
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+              <div style={{ color: "#6b5e52", fontSize: "0.95rem" }}>{item.desc}</div>
             </div>
           ))}
         </div>

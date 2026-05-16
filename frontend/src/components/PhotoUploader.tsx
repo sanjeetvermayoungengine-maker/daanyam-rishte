@@ -1,8 +1,9 @@
 import { useRef, useState, type DragEvent } from "react";
 import { addPhoto, removePhoto, setPrimaryPhoto, type BioPhoto } from "../store/bioDataSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { createLocalPhoto } from "../services/uploadService";
+import { createLocalPhoto, reencodePhotoFile } from "../services/uploadService";
 
+const MAX_PHOTOS = 6;
 const allowedTypes = ["image/jpeg", "image/png"];
 const maxBytes = 5 * 1024 * 1024;
 
@@ -13,7 +14,7 @@ export function PhotoUploader() {
   const [error, setError] = useState("");
   const [progress, setProgress] = useState(0);
 
-  const readFile = (file: File) => {
+  const readFile = async (file: File) => {
     if (!allowedTypes.includes(file.type)) {
       setError("Upload JPG or PNG photos only.");
       return;
@@ -27,22 +28,30 @@ export function PhotoUploader() {
     setError("");
     setProgress(25);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const photo = createLocalPhoto(file, String(reader.result));
+    try {
+      const dataUrl = await reencodePhotoFile(file);
+      const photo = createLocalPhoto(file, dataUrl);
       dispatch(addPhoto(photo));
       setProgress(100);
       window.setTimeout(() => setProgress(0), 700);
-    };
-    reader.onerror = () => {
+    } catch {
       setError("Could not read this photo. Try a different file.");
       setProgress(0);
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleFiles = (files: FileList | File[]) => {
-    Array.from(files).slice(0, 6).forEach(readFile);
+    const remaining = MAX_PHOTOS - photos.items.length;
+    if (remaining <= 0) {
+      setError("You can upload up to 6 photos.");
+      return;
+    }
+
+    Array.from(files)
+      .slice(0, remaining)
+      .forEach((file) => {
+        void readFile(file);
+      });
   };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {

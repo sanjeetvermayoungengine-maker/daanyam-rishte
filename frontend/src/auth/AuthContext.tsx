@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "../services/supabase";
 import { api } from "../services/api";
+import { store } from "../store";
+import { resetBioData } from "../store/bioDataSlice";
 
 type SendOtpResult = {
   error: Error | null;
@@ -76,9 +78,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return { error: null, message_id: response.data.message_id, status: response.status };
         } catch (err) {
           const status = (err as { response?: { status?: number } }).response?.status;
-          const message = (err as { response?: { data?: { error?: string } } }).response?.data?.error
+          const raw =
+            (err as { response?: { data?: { error?: string } } }).response?.data?.error
             ?? (err as Error).message
             ?? "Failed to send OTP";
+          const message = /timeout/i.test(raw)
+            ? "Sending OTP is taking longer than usual. Please wait a moment and try again."
+            : raw;
           return { error: new Error(message), status };
         }
       },
@@ -112,6 +118,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!supabase) {
           return;
         }
+        store.dispatch(resetBioData());
+        window.localStorage.removeItem("rishta:biodata-state");
         await supabase.auth.signOut();
       },
     }),

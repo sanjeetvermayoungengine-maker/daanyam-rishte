@@ -37,6 +37,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   try {
     const { payload } = await jwtVerify(token, jwks, {
       issuer: supabaseJwtIssuer,
+      audience: "authenticated",
     });
     const claims = payload as SupabaseClaims;
     if (!claims.sub) {

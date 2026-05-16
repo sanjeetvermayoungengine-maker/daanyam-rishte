@@ -2,9 +2,20 @@ import type { BioDataSnapshot, SharePermissions, ShareRecord } from "../types/sh
 
 export type HoroscopeAccessLevel = "none" | "summary" | "detailed";
 
+function withoutLegacyHoroscopeFlag(
+  input?: Partial<SharePermissions> | null
+): Partial<SharePermissions> | null | undefined {
+  if (!input) {
+    return input;
+  }
+
+  const { viewHoroscope: _legacyOnly, ...rest } = input;
+  return rest;
+}
+
 export function normalizeSharePermissions(input?: Partial<SharePermissions> | null): SharePermissions {
   const legacyHoroscopeAccess = input?.viewHoroscope === true;
-  const detailed = input?.viewDetailedKundli ?? legacyHoroscopeAccess ?? false;
+  const detailed = (input?.viewDetailedKundli ?? false) || legacyHoroscopeAccess;
   const birthDetails = input?.viewHoroscopeBirthDetails ?? detailed;
   const dasha = input?.viewHoroscopeDasha ?? detailed;
   const summary = (input?.viewHoroscopeSummary ?? false) || birthDetails || dasha || detailed;
@@ -22,7 +33,7 @@ export function normalizeSharePermissions(input?: Partial<SharePermissions> | nu
 }
 
 export function getHoroscopeAccessLevel(permissions: Partial<SharePermissions> | null | undefined): HoroscopeAccessLevel {
-  const normalized = normalizeSharePermissions(permissions);
+  const normalized = normalizeSharePermissions(withoutLegacyHoroscopeFlag(permissions));
 
   if (normalized.viewDetailedKundli) {
     return "detailed";
@@ -38,7 +49,7 @@ export function getHoroscopeAccessLevel(permissions: Partial<SharePermissions> |
 export function normalizeShareRecord(record: ShareRecord): ShareRecord {
   return {
     ...record,
-    permissions: normalizeSharePermissions(record.permissions),
+    permissions: normalizeSharePermissions(withoutLegacyHoroscopeFlag(record.permissions)),
   };
 }
 
@@ -172,7 +183,7 @@ export function sanitizeBioDataForPublicView(
   source: BioDataSnapshot,
   permissions: Partial<SharePermissions> | null | undefined
 ): BioDataSnapshot {
-  const normalizedPermissions = normalizeSharePermissions(permissions);
+  const normalizedPermissions = normalizeSharePermissions(withoutLegacyHoroscopeFlag(permissions));
   const sanitized: BioDataSnapshot = JSON.parse(JSON.stringify(source));
 
   if (!normalizedPermissions.viewBasic) {

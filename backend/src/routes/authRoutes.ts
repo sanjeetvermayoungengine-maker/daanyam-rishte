@@ -27,6 +27,9 @@ const SendOtpSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
 });
 
+/** BulkSMSPlans can be slow; cap wait so Cloud Run doesn't hold the client past axios timeout. */
+const BULKSMS_FETCH_TIMEOUT_MS = 20_000;
+
 const VerifyOtpSchema = z.object({
   phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   otp: z.string().regex(/^\d{6}$/, "OTP must be exactly 6 digits"),
@@ -99,6 +102,7 @@ authRoutes.post("/send-otp", async (req, res) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(BULKSMS_FETCH_TIMEOUT_MS),
     });
     const responseText = await smsResponse.text();
 
@@ -121,6 +125,11 @@ authRoutes.post("/send-otp", async (req, res) => {
     console.error("[send-otp] BulkSMSPlans error:", smsData);
     res.status(502).json({ error: "Unable to send OTP. Please try again." });
   } catch (error) {
+    if (error instanceof Error && error.name === "TimeoutError") {
+      console.error("[send-otp] BulkSMSPlans request timed out");
+      res.status(504).json({ error: "Sending OTP is taking too long. Please try again." });
+      return;
+    }
     console.error("[send-otp] Unexpected error:", error);
     res.status(500).json({ error: "Something went wrong. Please try again." });
   }
@@ -170,6 +179,7 @@ authRoutes.post("/verify-otp", async (req, res) => {
           message_id,
           otp,
         }),
+        signal: AbortSignal.timeout(BULKSMS_FETCH_TIMEOUT_MS),
       });
       verifyData = (await verifyResponse.json()) as Record<string, unknown>;
     } catch (error) {
@@ -223,6 +233,19 @@ authRoutes.post("/verify-otp", async (req, res) => {
         if (msg.includes("already") || msg.includes("exists") || msg.includes("registered")) {
           // Already exists in auth — try to find them.
           let existingAuthUser: { id: string; email?: string } | null = null;
+          const { data: profileMatch } = await supabaseAdmin
+            .from("user_profiles")
+            .select("id, email")
+            .eq("phone", phone)
+            .maybeSingle();
+
+          if (profileMatch) {
+            existingAuthUser = {
+              id: profileMatch.id,
+              email: profileMatch.email ?? undefined,
+            };
+          }
+
           let page = 1;
           while (!existingAuthUser) {
             const { data: usersPage } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
