@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { bioDataReducer, defaultBioDataState, updateHoroscope } from "./bioDataSlice";
+import {
+  addPhoto,
+  bioDataReducer,
+  defaultBioDataState,
+  resetBioData,
+  updateHoroscope,
+  type BioPhoto,
+} from "./bioDataSlice";
 
 describe("bioDataSlice horoscope birthplace state", () => {
   it("stores the selected normalized birthplace and resets computed kundli", () => {
@@ -56,5 +63,41 @@ describe("bioDataSlice horoscope birthplace state", () => {
       error: null,
       result: null
     });
+  });
+});
+
+describe("bioDataSlice resetBioData", () => {
+  it("restores the default biodata draft", () => {
+    const dirtyState = {
+      ...defaultBioDataState,
+      personalDetails: {
+        ...defaultBioDataState.personalDetails,
+        fullName: "Someone Else",
+      },
+    };
+
+    expect(bioDataReducer(dirtyState, resetBioData())).toEqual(defaultBioDataState);
+  });
+});
+
+describe("bioDataSlice photo cap", () => {
+  const samplePhoto = (id: string): BioPhoto => ({
+    id,
+    url: `data:image/jpeg;base64,${id}`,
+    name: `${id}.jpg`,
+    uploadedAt: "2026-01-01T00:00:00.000Z",
+  });
+
+  it("does not add more than six photos", () => {
+    const initialState = {
+      ...defaultBioDataState,
+      photos: {
+        items: Array.from({ length: 6 }, (_, index) => samplePhoto(`photo-${index}`)),
+        primaryPhotoId: "photo-0",
+      },
+    };
+
+    const nextState = bioDataReducer(initialState, addPhoto(samplePhoto("photo-6")));
+    expect(nextState.photos.items).toHaveLength(6);
   });
 });

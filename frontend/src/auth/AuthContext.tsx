@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "../services/supabase";
 import { api } from "../services/api";
+import { store } from "../store";
+import { resetBioData } from "../store/bioDataSlice";
 
 type SendOtpResult = {
   error: Error | null;
@@ -112,6 +114,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!supabase) {
           return;
         }
+        store.dispatch(resetBioData());
+        window.localStorage.removeItem("rishta:biodata-state");
         await supabase.auth.signOut();
       },
     }),

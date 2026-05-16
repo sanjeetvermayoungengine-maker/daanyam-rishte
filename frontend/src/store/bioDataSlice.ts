@@ -231,6 +231,9 @@ const bioDataSlice = createSlice({
       state.photos = action.payload;
     },
     addPhoto(state, action: PayloadAction<BioPhoto>) {
+      if (state.photos.items.length >= 6) {
+        return;
+      }
       state.photos.items.push(action.payload);
       state.photos.primaryPhotoId = state.photos.primaryPhotoId ?? action.payload.id;
     },
@@ -385,6 +388,9 @@ const bioDataSlice = createSlice({
     },
     resetForm() {
       return defaultBioDataState;
+    },
+    resetBioData() {
+      return defaultBioDataState;
     }
   }
 });
@@ -396,6 +402,7 @@ export const {
   markShareAccessed,
   removePhoto,
   removeSibling,
+  resetBioData,
   resetForm,
   revokeShare,
   setCurrentStep,
