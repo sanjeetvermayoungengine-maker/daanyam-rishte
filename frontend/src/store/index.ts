@@ -18,6 +18,19 @@ function loadBioDataState(): BioDataState {
     const parsed = JSON.parse(storedValue) as Partial<BioDataState>;
     // Shares are server-backed; keep local draft only.
     const { shares: _ignoredShares, ...rest } = parsed;
+
+    const isObject = (value: unknown): value is Record<string, unknown> =>
+      typeof value === "object" && value !== null && !Array.isArray(value);
+
+    if (
+      !isObject(rest.personalDetails) ||
+      !isObject(rest.photos) ||
+      !isObject(rest.family) ||
+      !isObject(rest.horoscope)
+    ) {
+      return defaultBioDataState;
+    }
+
     return {
       ...defaultBioDataState,
       ...rest,

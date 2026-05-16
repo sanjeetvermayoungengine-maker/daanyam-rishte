@@ -76,7 +76,8 @@ export function SharePrivacySettings() {
       ]);
       setShares(loadedShares);
       setAnalyticsSummary(summary);
-    } catch {
+    } catch (err) {
+      console.error("[SharePrivacySettings refreshShares] failed:", err);
       setError("Could not load shares right now.");
     } finally {
       setIsLoading(false);
@@ -129,7 +130,8 @@ export function SharePrivacySettings() {
       const updated = await updateSharePermissionsApi(shareId, nextPermissions);
       setShares((current) => current.map((item) => (item.id === shareId ? updated : item)));
       setAnalyticsSummary(await fetchShareAnalyticsSummaryApi());
-    } catch {
+    } catch (err) {
+      console.error("[SharePrivacySettings updatePermission] failed:", err);
       setError("Could not update permissions right now.");
     }
   };
@@ -384,7 +386,8 @@ export function SharePrivacySettings() {
                           const revoked = await revokeShareApi(share.id);
                           setShares((current) => current.map((item) => (item.id === share.id ? revoked : item)));
                           setAnalyticsSummary(await fetchShareAnalyticsSummaryApi());
-                        } catch {
+                        } catch (err) {
+                          console.error("[SharePrivacySettings revokeShare] failed:", err);
                           setError("Could not revoke the share right now.");
                         }
                       }

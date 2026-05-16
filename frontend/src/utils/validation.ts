@@ -4,7 +4,7 @@ import { hasResolvedBirthPlace } from "./horoscope";
 export type ValidationErrors<T> = Partial<Record<keyof T, string>>;
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phonePattern = /^[+()\d\s-]{8,15}$/;
+const phonePattern = /^\d{10}$/;
 
 export function validatePersonalDetails(values: PersonalDetails): ValidationErrors<PersonalDetails> {
   const errors: ValidationErrors<PersonalDetails> = {};
@@ -20,7 +20,7 @@ export function validatePersonalDetails(values: PersonalDetails): ValidationErro
   if (!values.phone.trim()) {
     errors.phone = "Phone number is required";
   } else if (!phonePattern.test(values.phone.trim())) {
-    errors.phone = "Enter a valid phone number";
+    errors.phone = "Enter a 10-digit Indian phone number";
   }
 
   if (!values.email.trim()) {
