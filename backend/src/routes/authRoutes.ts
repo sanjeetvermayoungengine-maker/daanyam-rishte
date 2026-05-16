@@ -223,6 +223,19 @@ authRoutes.post("/verify-otp", async (req, res) => {
         if (msg.includes("already") || msg.includes("exists") || msg.includes("registered")) {
           // Already exists in auth — try to find them.
           let existingAuthUser: { id: string; email?: string } | null = null;
+          const { data: profileMatch } = await supabaseAdmin
+            .from("user_profiles")
+            .select("id, email")
+            .eq("phone", phone)
+            .maybeSingle();
+
+          if (profileMatch) {
+            existingAuthUser = {
+              id: profileMatch.id,
+              email: profileMatch.email ?? undefined,
+            };
+          }
+
           let page = 1;
           while (!existingAuthUser) {
             const { data: usersPage } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 });
