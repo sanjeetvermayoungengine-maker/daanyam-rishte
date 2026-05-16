@@ -96,6 +96,11 @@ async function logShareEvent(input: {
 export async function createShare(input: CreateShareInput): Promise<ShareRecord> {
   validateCreateInput(input);
 
+  const count = (await shareRepository.list(input.ownerUserId)).length;
+  if (count >= 100) {
+    throw new Error("share limit reached (100 per account)");
+  }
+
   const shareType = resolveShareType(input.shareType);
   const source = resolveShareSource(input.source);
 
@@ -107,7 +112,7 @@ export async function createShare(input: CreateShareInput): Promise<ShareRecord>
     shareType,
     label: sanitizeShareLabel(input.label),
     source,
-    permissions: normalizeSharePermissions(applySharePreset(shareType, input.permissions)),
+    permissions: applySharePreset(shareType, input.permissions),
     expiryDate: input.expiryDate,
     bioData: input.bioData,
   });
