@@ -68,8 +68,8 @@ export function DharmScreen() {
       <div className="mb-10 mt-8">
         <Eyebrow>{t.chooseFaith}</Eyebrow>
         <Heading>
-          Begin with<br />
-          <em className="font-cormorant">your dharm.</em>
+          {t.dharm_heading_line1}<br />
+          <em className="font-cormorant">{t.dharm_heading_line2}</em>
         </Heading>
         <SubLine>{t.chooseFaithSub}</SubLine>
       </div>
