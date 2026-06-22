@@ -127,7 +127,7 @@ export function AuthScreen() {
       <BackButton onClick={handleBack}>{t.back}</BackButton>
 
       <div className="mb-8 mt-12 text-center">
-        <Eyebrow>Sign in</Eyebrow>
+        <Eyebrow>{t.auth_eyebrow}</Eyebrow>
         <Heading size="clamp(1.75rem, 6vw, 2.5rem)">{t.auth_title}</Heading>
         <SubLine>{t.auth_sub}</SubLine>
       </div>
@@ -173,7 +173,7 @@ export function AuthScreen() {
                   : "cursor-not-allowed bg-slate-900 text-amber-50 opacity-32"
               }`}
             >
-              {isSending ? "Sending..." : t.send_otp}
+              {isSending ? t.sending : t.send_otp}
             </button>
 
             <div className="my-7 flex items-center gap-3">
@@ -214,7 +214,7 @@ export function AuthScreen() {
         {phase === "otp" && (
           <>
             <p className="font-cormorant mb-6 text-center text-sm italic text-slate-500">
-              We sent a 6-digit code to <strong className="text-slate-900 font-normal">+91 {sanitizedPhone}</strong>
+              {t.otp_sent_prefix} <strong className="text-slate-900 font-normal">+91 {sanitizedPhone}</strong>
             </p>
 
             <div className="mb-7 flex justify-center gap-2">
@@ -253,7 +253,7 @@ export function AuthScreen() {
                   : "cursor-not-allowed bg-slate-900 text-amber-50 opacity-32"
               }`}
             >
-              {isVerifying ? "Verifying..." : "Verify & Continue"}
+              {isVerifying ? t.verifying : t.verify_continue}
             </button>
 
             <div className="text-center">
@@ -264,7 +264,7 @@ export function AuthScreen() {
                 }}
                 className="mt-3 border-0 bg-none px-0 py-3 text-xs font-bold uppercase tracking-widest text-slate-500 transition-colors hover:text-slate-900"
               >
-                Change number
+                {t.change_number}
               </button>
             </div>
           </>

@@ -71,27 +71,26 @@ export function FormScreen() {
             {dharmData.symbol}
           </span>
           <span className="text-xs font-black uppercase tracking-widest text-slate-500">
-            {dharm?.toUpperCase()} Biodata
+            {dharm?.toUpperCase()} {t.biodata_label.toUpperCase()}
           </span>
         </div>
 
         <Heading size="clamp(2rem, 7vw, 2.875rem)">
           {isParent ? (
             <>
-              The biodata for<br />
-              <em className="font-cormorant">your child.</em>
+              {t.form_heading_parent_line1}<br />
+              <em className="font-cormorant">{t.form_heading_parent_line2}</em>
             </>
           ) : (
             <>
-              Your biodata,<br />
-              <em className="font-cormorant">made with care.</em>
+              {t.form_heading_self_line1}<br />
+              <em className="font-cormorant">{t.form_heading_self_line2}</em>
             </>
           )}
         </Heading>
 
         <SubLine>
-          Fill out each section thoughtfully. Every detail you share helps families
-          understand who {isParent ? "they" : "you"} are.
+          {isParent ? t.form_subline_parent : t.form_subline_self}
         </SubLine>
       </div>
 
@@ -109,7 +108,7 @@ export function FormScreen() {
             <span className="font-cormorant italic text-amber-600 mr-2">
               {s === "personal" ? "I." : s === "family" ? "II." : "III."}
             </span>
-            {s.charAt(0).toUpperCase() + s.slice(1)}
+            {s === "personal" ? t.section_personal : s === "family" ? t.section_family : t.section_lineage}
           </button>
         ))}
       </div>
@@ -124,7 +123,7 @@ export function FormScreen() {
           <div className="space-y-7">
             <div>
               <label className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-600">
-                {isParent ? "Your child's full name" : "Full name"}
+                {isParent ? t.field_child_full_name : t.field_full_name}
               </label>
               <input
                 type="text"
@@ -137,7 +136,7 @@ export function FormScreen() {
 
             <div>
               <label className="mb-1 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-600">
-                Date of birth
+                {t.field_dob}
               </label>
               <input
                 type="date"
@@ -149,7 +148,7 @@ export function FormScreen() {
 
             <div>
               <label className="mb-1 text-xs font-black uppercase tracking-widest text-slate-600">
-                Current city
+                {t.field_current_city}
               </label>
               <input
                 type="text"
@@ -164,7 +163,7 @@ export function FormScreen() {
           <div className="space-y-7">
             <div>
               <label className="mb-1 text-xs font-black uppercase tracking-widest text-slate-600">
-                Father's name
+                {t.field_fathers_name}
               </label>
               <input
                 type="text"
@@ -175,7 +174,7 @@ export function FormScreen() {
 
             <div>
               <label className="mb-1 text-xs font-black uppercase tracking-widest text-slate-600">
-                Mother's name
+                {t.field_mothers_name}
               </label>
               <input
                 type="text"
@@ -190,7 +189,7 @@ export function FormScreen() {
           <div className="space-y-7">
             <div>
               <label className="mb-1 text-xs font-black uppercase tracking-widest text-slate-600">
-                Community
+                {t.field_community}
               </label>
               <input
                 type="text"
@@ -201,7 +200,7 @@ export function FormScreen() {
 
             <div>
               <label className="mb-1 text-xs font-black uppercase tracking-widest text-slate-600">
-                Gotra
+                {t.field_gotra}
               </label>
               <input
                 type="text"
@@ -231,7 +230,7 @@ export function FormScreen() {
         <p
           className="font-cormorant mt-3 text-center text-xs italic text-slate-500"
         >
-          Add full name & date of birth to save.
+          {t.form_save_hint}
         </p>
       )}
     </div>

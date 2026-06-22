@@ -5,23 +5,17 @@ import type { Role } from "../../store/onboardingSlice";
 import { BackButton, Heading, SubLine, Eyebrow } from "./OnboardingComponents";
 import { getStrings } from "./strings";
 
-const ROLES: Record<Role, { num: string; title: string; desc: string }> = {
-  self: {
-    num: "I",
-    title: "For myself",
-    desc: "I am creating my own biodata",
-  },
-  parent: {
-    num: "II",
-    title: "For my child",
-    desc: "I am a parent finding a match for my son or daughter",
-  },
-};
+const ROLE_NUMS: Record<Role, string> = { self: "I", parent: "II" };
 
 export function RoleScreen() {
   const dispatch = useDispatch();
   const { language, role } = useSelector((state: RootState) => state.onboarding);
   const t = getStrings(language || "english");
+
+  const ROLES: Record<Role, { num: string; title: string; desc: string }> = {
+    self: { num: ROLE_NUMS.self, title: t.role_self, desc: t.role_self_desc },
+    parent: { num: ROLE_NUMS.parent, title: t.role_parent, desc: t.role_parent_desc },
+  };
 
   const handleNext = () => {
     if (role) {
